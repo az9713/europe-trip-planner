@@ -181,7 +181,7 @@ window.TRIP = {
     {
       n: 10, date: "May 31", num: "31", weekday: "Sun", city: "Travel",
       title: "Fly LHR to San Francisco",
-      photo: "https://images.unsplash.com/photo-1517445312882-bc9910d016b7?auto=format&fit=crop&w=900&q=72",
+      photo: "https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=900&q=72",
       photoLabel: "Heathrow departure",
       map: "https://www.google.com/maps/dir/?api=1&origin=London&destination=Heathrow+Terminal+2&travelmode=transit",
       tags: ["UA949", "International", "Home"],
