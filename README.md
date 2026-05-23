@@ -52,13 +52,105 @@ icon-*.png              PWA icons (192, 512, maskable, Apple touch)
 vercel.json             Static deployment config
 ```
 
-## Deploying
+## Deploying to Vercel
 
-The app is a single static file — drop it on any static host (Vercel, Netlify, GitHub Pages, etc.).
+This is a plain static site — no build step, no dependencies, no server required. The steps below cover everything from zero to a live public URL.
+
+### Prerequisites
+
+- A [GitHub](https://github.com) account (free)
+- A [Vercel](https://vercel.com) account (free Hobby plan is enough)
+- [Node.js](https://nodejs.org) installed (any recent LTS version)
+
+---
+
+### Step 1 — Push the code to GitHub
+
+If the repo doesn't exist yet, create it on GitHub and push:
 
 ```bash
-# Vercel one-liner
+git init
+git add .
+git commit -m "Initial commit"
+gh repo create <your-username>/<repo-name> --public --source . --remote origin --push
+```
+
+> `gh` is the [GitHub CLI](https://cli.github.com). Alternatively, create the repo manually on github.com and follow the push instructions it gives you.
+
+---
+
+### Step 2 — Install the Vercel CLI
+
+```bash
+npm install -g vercel
+```
+
+Then log in:
+
+```bash
+vercel login
+```
+
+This opens a browser window — authenticate with your Vercel account.
+
+---
+
+### Step 3 — Deploy
+
+From inside the project folder:
+
+```bash
 vercel --prod
 ```
 
-No build step, no dependencies, no server required.
+Vercel will ask a few questions the first time (project name, which account/team). After that it uploads the files, builds (nothing to build here), and prints a live URL.
+
+---
+
+### Step 4 — Choose a clean URL (optional)
+
+Vercel auto-generates a URL like `your-project-name-abc123.vercel.app`. If the plain `your-project-name.vercel.app` subdomain is already taken by another user globally, rename the Vercel project to something unique:
+
+```bash
+# Via the Vercel dashboard:
+# vercel.com → your project → Settings → General → Project Name → rename
+```
+
+After renaming, redeploy once to pick up the new alias:
+
+```bash
+vercel --prod
+```
+
+---
+
+### Step 5 — Make the site publicly accessible
+
+By default Vercel may ask visitors to log in with a Vercel account. To make the site fully public (no login required for anyone):
+
+1. Go to your project on **vercel.com**
+2. Click **Settings** → **Deployment Protection**
+3. Make sure **"Require Log In"** under *Vercel Authentication* is **Off**
+4. Click **Save**
+
+Test in an incognito/private browser window to confirm no login is required.
+
+---
+
+### Redeploying after changes
+
+Every time you push to the `main` branch on GitHub, Vercel automatically redeploys. You can also trigger a manual redeploy at any time:
+
+```bash
+vercel --prod
+```
+
+---
+
+### Current live deployment
+
+| | |
+|---|---|
+| **URL** | https://london-paris-2026.vercel.app |
+| **GitHub repo** | https://github.com/az9713/europe-trip-planner |
+| **Vercel project** | london-paris-2026 |
