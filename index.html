@@ -1,0 +1,1744 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-density="standard" data-scale="default" data-gentle="off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A calm mobile companion for ten days in London and Paris (May 22 — 31, 2026).">
+
+<title>London & Paris — Trip Companion</title>
+
+<!-- ── PWA: manifest + icons + theme ───────────────────────── -->
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="shortcut icon" href="./favicon.png">
+
+<meta name="theme-color" content="#F0EEE6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16140F" media="(prefers-color-scheme: dark)">
+
+<!-- iOS standalone-mode (full-screen home-screen app) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="L&amp;P">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=yes">
+
+<!-- ── Fonts ───────────────────────────────────────────────── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..600;1,8..60,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ═════════════════════════════════════════════════════════
+     1 · Anthropic design-system tokens (inlined from tokens.css)
+     ═════════════════════════════════════════════════════════ */
+  :root {
+    --font-sans: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Comic Neue", ui-rounded, system-ui, sans-serif;
+    --font-serif: "Source Serif 4", "Tiempos Text", "Iowan Old Style", "Palatino", Georgia, serif;
+    --font-mono: "Fira Code", "Fira Mono", "Söhne Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    --book: #F0EEE6;
+    --ivory: #FAF9F5;
+    --paper: #FFFFFF;
+    --crail: #D97757;
+    --crail-deep: #BD5D3A;
+    --slate: #1F1E1D;
+    --slate-900: #191918;
+    --slate-800: #2C2B29;
+    --slate-700: #3D3D3A;
+    --slate-600: #6F6E69;
+    --slate-500: #87867F;
+    --slate-400: #B4B3AC;
+    --slate-300: #D6D3CA;
+    --slate-200: #E4E1D6;
+    --slate-100: #EDEBE0;
+
+    --accent: var(--crail);
+    --accent-hover: var(--crail-deep);
+    --accent-bg: #F5E7DE;
+
+    --r-xs: 4px; --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
+
+    --ease: cubic-bezier(.2,.7,.2,1);
+    --ease-out: cubic-bezier(.16,1,.3,1);
+    --dur-xs: 120ms; --dur-sm: 200ms; --dur-md: 320ms; --dur-lg: 520ms;
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     2 · Theme mapping (light / sepia / dark)
+     ═════════════════════════════════════════════════════════ */
+  :root,
+  :root[data-theme="light"] {
+    --bg: var(--book); --bg-alt: var(--ivory); --bg-elev: var(--paper); --bg-deep: #E5E2D6;
+    --fg: var(--slate); --fg-muted: var(--slate-600); --fg-faint: var(--slate-500);
+    --border: var(--slate-300);
+    --hairline: rgba(31,30,29,0.12); --hairline-strong: rgba(31,30,29,0.22);
+    --photo-tint: rgba(31,30,29,0.0);
+    --meta-theme: #F0EEE6;
+  }
+  :root[data-theme="sepia"] {
+    --bg: #ECE3CC; --bg-alt: #F4ECD8; --bg-elev: #FBF5E3; --bg-deep: #DDD0B0;
+    --fg: #2B241A; --fg-muted: #6B5E47; --fg-faint: #8E815F;
+    --border: #C9BC9C;
+    --hairline: rgba(43,36,26,0.16); --hairline-strong: rgba(43,36,26,0.30);
+    --accent: #B85F37; --accent-hover: #9A4928; --accent-bg: #F1DCC8;
+    --photo-tint: rgba(60,40,15,0.10);
+    --meta-theme: #ECE3CC;
+  }
+  :root[data-theme="dark"] {
+    --bg: #16140F; --bg-alt: #1E1B14; --bg-elev: #25221A; --bg-deep: #0E0C09;
+    --fg: #EFEAD9; --fg-muted: #B4AC95; --fg-faint: #8E8770;
+    --border: #3B362A;
+    --hairline: rgba(239,234,217,0.10); --hairline-strong: rgba(239,234,217,0.22);
+    --accent: #E4885E; --accent-hover: #F1A07A; --accent-bg: #2B2118;
+    --photo-tint: rgba(0,0,0,0.30);
+    --meta-theme: #16140F;
+  }
+
+  /* Density */
+  :root, :root[data-density="standard"] {
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+    --sp-5: 20px; --sp-6: 28px; --sp-7: 36px;
+    --section-gap: 20px;
+  }
+  :root[data-density="compact"] {
+    --sp-1: 3px; --sp-2: 6px; --sp-3: 9px; --sp-4: 12px;
+    --sp-5: 16px; --sp-6: 20px; --sp-7: 28px;
+    --section-gap: 14px;
+  }
+  :root[data-density="airy"] {
+    --sp-1: 5px; --sp-2: 10px; --sp-3: 16px; --sp-4: 22px;
+    --sp-5: 28px; --sp-6: 36px; --sp-7: 48px;
+    --section-gap: 28px;
+  }
+
+  /* Font scale */
+  :root, :root[data-scale="default"] { font-size: 16px; }
+  :root[data-scale="small"]   { font-size: 14px; }
+  :root[data-scale="large"]   { font-size: 18px; }
+
+  /* Gentle-only */
+  :root:not([data-gentle="on"]) .gentle-only { display: none !important; }
+  :root[data-gentle="on"] .full-only         { display: none !important; }
+
+  /* ═════════════════════════════════════════════════════════
+     3 · Base
+     ═════════════════════════════════════════════════════════ */
+  html, body {
+    margin: 0; padding: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  * { box-sizing: border-box; }
+  body {
+    /* Full-bleed: takes the dynamic device viewport when running standalone */
+    min-height: 100dvh;
+  }
+
+  /* Tags */
+  .tag {
+    display: inline-flex; align-items: center;
+    padding: 3px 8px;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--fg-muted);
+    font-size: 0.72rem;
+    font-weight: 500;
+  }
+  .tag.solid {
+    background: var(--accent-bg);
+    border-color: transparent;
+    color: var(--accent);
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     4 · App shell + bottom tabbar
+     ═════════════════════════════════════════════════════════ */
+  .app {
+    width: 100%;
+    min-height: 100dvh;
+    max-width: 540px;
+    margin: 0 auto;
+    position: relative;
+    background: var(--bg);
+  }
+
+  .tabbar {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: 0;
+    width: 100%; max-width: 540px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    border-top: 1px solid var(--hairline);
+    padding: 8px 8px calc(env(safe-area-inset-bottom, 0px) + 14px);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    z-index: 40;
+  }
+  .tabbar button {
+    background: transparent; border: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 6px 4px;
+    color: var(--fg-muted);
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tabbar button.active { color: var(--accent); }
+  .tabbar .ticon { width: 22px; height: 22px; display: grid; place-items: center; }
+
+  /* ═════════════════════════════════════════════════════════
+     5 · Sticky head: brand + day rail
+     ═════════════════════════════════════════════════════════ */
+  .head {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .head-inner {
+    padding: calc(env(safe-area-inset-top, 0px) + 18px) 18px 8px;
+  }
+  .head .brand-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .brand-title { display: flex; flex-direction: column; min-width: 0; }
+  .brand-title .t {
+    font-family: var(--font-serif); font-size: 18px;
+    letter-spacing: -0.01em; color: var(--fg);
+  }
+  .brand-title .s {
+    font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--fg-muted); margin-top: 2px;
+  }
+  .head-actions {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .day-counter {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--fg-muted);
+    display: flex; align-items: baseline; gap: 4px;
+  }
+  .day-counter b {
+    font-family: var(--font-serif); font-weight: 400;
+    font-size: 18px; letter-spacing: -0.01em; color: var(--fg);
+  }
+  .icon-btn {
+    width: 34px; height: 34px;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    background: var(--bg-elev);
+    color: var(--fg);
+    cursor: pointer;
+    display: grid; place-items: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .icon-btn:active { background: var(--bg-alt); }
+
+  .rail {
+    display: flex; gap: 6px;
+    padding: 4px 18px 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail { scrollbar-width: none; }
+  .rail .chip {
+    flex: 0 0 auto;
+    min-width: 50px;
+    padding: 7px 4px 6px;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: var(--bg-elev);
+    color: var(--fg);
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center;
+    scroll-snap-align: center;
+    font-family: var(--font-sans);
+    text-align: center;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .rail .chip .d {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    line-height: 1; letter-spacing: -0.02em;
+  }
+  .rail .chip .w {
+    font-size: 9.5px;
+    text-transform: uppercase; letter-spacing: 0.10em;
+    color: var(--fg-muted); margin-top: 3px;
+  }
+  .rail .chip.is-paris  .d::after,
+  .rail .chip.is-london .d::after,
+  .rail .chip.is-travel .d::after {
+    content: ""; display: block;
+    width: 4px; height: 4px; border-radius: 999px;
+    margin: 3px auto 0;
+  }
+  .rail .chip.is-london .d::after { background: var(--accent); }
+  .rail .chip.is-paris  .d::after { background: #4C6B82; }
+  .rail .chip.is-travel .d::after { background: var(--fg-muted); }
+  .rail .chip.active {
+    background: var(--fg); color: var(--bg);
+    border-color: transparent;
+  }
+  .rail .chip.active .w { color: rgba(255,255,255,0.6); }
+  .rail .chip.is-today {
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+  .rail .chip.is-today::before {
+    content: "Now";
+    position: absolute; top: -7px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #fff;
+    font-size: 8.5px; padding: 2px 6px; border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .rail .chip.is-past { opacity: 0.65; }
+
+  /* ═════════════════════════════════════════════════════════
+     6 · Day cards (feed)
+     ═════════════════════════════════════════════════════════ */
+  .day-feed { padding: 14px 0 110px; }
+  .day { margin: 0 0 14px; padding: 0 18px; scroll-margin-top: 130px; }
+  .day-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 200ms;
+  }
+  .day-card.is-today {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+  }
+
+  .photo {
+    position: relative;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    background: var(--bg-deep);
+  }
+  .photo img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: contrast(0.96) saturate(0.85);
+    display: block;
+  }
+  .photo .veil {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 0%, transparent 50%, rgba(0,0,0,0.55) 100%);
+    pointer-events: none;
+  }
+  .photo .day-pill {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(255,253,250,0.92);
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-family: var(--font-serif);
+    font-size: 12px;
+    color: #1F1E1D;
+    backdrop-filter: blur(8px);
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .photo .day-pill b {
+    font-family: var(--font-serif); font-weight: 400;
+    font-size: 16px; letter-spacing: -0.02em;
+  }
+  .photo .city-pill {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-weight: 500;
+    backdrop-filter: blur(8px);
+  }
+  .photo .label {
+    position: absolute; left: 12px; bottom: 10px;
+    color: #fff;
+    font-family: var(--font-serif); font-size: 16px;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    max-width: 80%;
+  }
+  .photo .now-flag {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #fff;
+    font-size: 10px; padding: 4px 10px; border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    line-height: 1;
+    z-index: 1;
+  }
+
+  .day-body { padding: 14px 16px 16px; }
+  .day-headline {
+    font-family: var(--font-serif); font-size: 17px; line-height: 1.25;
+    letter-spacing: -0.015em; color: var(--fg);
+  }
+  .day-tags {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    margin-top: 10px;
+  }
+
+  .timeline {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 6px 12px;
+  }
+  .timeline .slot-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--fg-muted); font-weight: 500;
+    padding-top: 3px;
+  }
+  .timeline .slot-text {
+    font-family: var(--font-serif); font-size: 13.5px; line-height: 1.4;
+    color: var(--fg);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .timeline > div:nth-last-child(-n+2) { border-bottom: 0; padding-bottom: 0; }
+
+  .extra {
+    overflow: hidden;
+    transition: max-height 320ms cubic-bezier(.2,.7,.2,1);
+    max-height: 0;
+  }
+  .extra.open { max-height: 1200px; }
+  .notes-grid {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hairline);
+    display: grid; grid-template-columns: 1fr; gap: 10px;
+  }
+  .note {
+    background: var(--bg-alt);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--hairline);
+  }
+  .note .lbl {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--fg-muted); font-weight: 500; margin-bottom: 4px;
+  }
+  .note .txt {
+    font-family: var(--font-serif); font-size: 13px; line-height: 1.45;
+    color: var(--fg);
+  }
+  .note.gentle {
+    background: var(--accent-bg);
+    border-color: transparent;
+  }
+  .note.gentle .lbl { color: var(--accent); }
+  .note.gentle .txt { font-style: italic; }
+
+  .links {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 12px;
+  }
+  .lnk {
+    font-size: 11.5px;
+    padding: 6px 10px;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    text-decoration: none;
+    color: var(--fg);
+    background: transparent;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lnk.arrow::after { content: " ↗"; color: var(--fg-muted); }
+  .lnk.primary {
+    background: var(--fg); color: var(--bg);
+    border-color: transparent;
+  }
+
+  .expand-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    background: transparent;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    color: var(--fg-muted);
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .expand-btn .car { transition: transform 200ms; }
+  .day-card.open .expand-btn .car { transform: rotate(180deg); }
+  .day-card.open .expand-btn .lbl-closed { display: none; }
+  .day-card:not(.open) .expand-btn .lbl-open { display: none; }
+
+  /* ═════════════════════════════════════════════════════════
+     7 · Other screens (eat / safety / list)
+     ═════════════════════════════════════════════════════════ */
+  .scroll-screen {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 18px);
+    padding-bottom: 120px;
+  }
+  .h-sec {
+    padding: 12px 18px 8px;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .h-sec .ttl {
+    font-family: var(--font-serif); font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em; color: var(--fg);
+  }
+  .h-sec .sub {
+    font-size: 11px; color: var(--fg-muted); letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .eat-tabs { display: flex; gap: 6px; padding: 0 18px 12px; }
+  .eat-tabs button {
+    padding: 6px 12px;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--fg-muted);
+    font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .eat-tabs button.active {
+    background: var(--fg); color: var(--bg); border-color: transparent;
+  }
+  .eat-card {
+    margin: 0 18px 10px;
+    padding: 14px;
+    background: var(--bg-elev);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+  }
+  .eat-card .ec-top {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  }
+  .eat-card .name {
+    font-family: var(--font-serif); font-size: 17px;
+    letter-spacing: -0.01em; color: var(--fg);
+    line-height: 1.2;
+  }
+  .eat-card .city-flag {
+    font-family: var(--font-serif); font-style: italic;
+    font-size: 12px; color: var(--accent);
+  }
+  .eat-card .meta {
+    font-size: 11px; color: var(--fg-muted);
+    margin-top: 4px; letter-spacing: 0.04em;
+  }
+  .eat-card .note {
+    font-family: var(--font-serif); font-size: 13.5px;
+    line-height: 1.45; color: var(--fg); margin-top: 8px;
+  }
+
+  /* Safety */
+  .safety-card {
+    margin: 0 18px 12px;
+    padding: 14px;
+    background: var(--bg-elev);
+    border: 1px solid var(--hairline-strong);
+    border-radius: 10px;
+  }
+  .safety-card .h {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--accent); font-weight: 600; margin-bottom: 10px;
+  }
+  .e-row {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 13px;
+  }
+  .e-row:last-child { border-bottom: 0; }
+  .e-row a {
+    font-family: var(--font-mono); font-size: 13px;
+    color: var(--accent);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--hairline);
+    background: var(--bg-alt);
+  }
+  .e-row a:active { background: var(--accent-bg); }
+
+  details.acc {
+    margin: 0 18px 8px;
+    padding: 14px 14px;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--bg-elev);
+  }
+  details.acc[open] { background: var(--bg-alt); }
+  details.acc summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-serif); font-size: 14.5px; color: var(--fg);
+  }
+  details.acc summary::-webkit-details-marker { display: none; }
+  details.acc summary::after {
+    content: "+"; font-family: var(--font-serif); font-size: 18px;
+    color: var(--fg-muted);
+  }
+  details.acc[open] summary::after { content: "−"; }
+  details.acc ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    font-family: var(--font-serif);
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--fg);
+  }
+  details.acc ul li { margin-bottom: 6px; }
+
+  /* Checklist */
+  .chk-wrap { padding: 0 18px; }
+  .chk-row {
+    display: grid; grid-template-columns: 22px 1fr;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--bg-elev);
+    align-items: start;
+    cursor: pointer;
+    margin-bottom: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .chk-box {
+    width: 18px; height: 18px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    margin-top: 2px;
+    background: transparent;
+    display: grid; place-items: center;
+  }
+  .chk-row.done { background: var(--bg-alt); }
+  .chk-row.done .chk-box {
+    background: var(--accent); border-color: var(--accent);
+  }
+  .chk-row.done .chk-box::after {
+    content: "✓"; color: #fff; font-size: 11px; font-weight: 700;
+  }
+  .chk-row .chk-title {
+    font-family: var(--font-serif); font-size: 14px;
+    line-height: 1.3; color: var(--fg);
+    letter-spacing: -0.005em;
+  }
+  .chk-row.done .chk-title { color: var(--fg-muted); }
+  .chk-row .chk-note {
+    font-size: 11px; color: var(--fg-muted);
+    margin-top: 4px; line-height: 1.4;
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     8 · "Today" floating button (jump back to today)
+     ═════════════════════════════════════════════════════════ */
+  .today-fab {
+    position: fixed;
+    right: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 86px);
+    z-index: 35;
+    background: var(--accent);
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    box-shadow: 0 8px 24px -6px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.12);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    transition: opacity 200ms, transform 200ms;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .today-fab.hidden {
+    opacity: 0; pointer-events: none; transform: translateY(8px) scale(0.96);
+  }
+
+  /* ═════════════════════════════════════════════════════════
+     9 · Settings drawer (bottom sheet)
+     ═════════════════════════════════════════════════════════ */
+  .sheet-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.32);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 240ms;
+  }
+  .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    z-index: 51;
+    background: var(--bg-elev);
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    transform: translateY(105%);
+    transition: transform 320ms cubic-bezier(.2,.7,.2,1);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.18);
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 8px 0 calc(env(safe-area-inset-bottom, 0px) + 20px);
+    max-height: 80dvh;
+    overflow-y: auto;
+  }
+  .sheet.open { transform: translateY(0); }
+  .sheet-handle {
+    width: 44px; height: 5px; border-radius: 999px;
+    background: var(--border);
+    margin: 8px auto 4px;
+  }
+  .sheet-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 8px 20px 12px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .sheet-head .ttl {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+  .sheet-head .x {
+    background: transparent; border: 0;
+    font-size: 22px; color: var(--fg-muted);
+    cursor: pointer; padding: 4px 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .setting {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .setting .lbl {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--fg-muted); font-weight: 500; margin-bottom: 8px;
+  }
+  .seg {
+    display: flex;
+    background: var(--bg-alt);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 0;
+  }
+  .seg button {
+    flex: 1;
+    padding: 8px 6px;
+    border: 0;
+    background: transparent;
+    color: var(--fg-muted);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 180ms, color 180ms;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .seg button.active {
+    background: var(--bg-elev);
+    color: var(--fg);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px;
+  }
+  .toggle-row .row-label .title {
+    font-family: var(--font-serif);
+    font-size: 14.5px;
+    color: var(--fg);
+  }
+  .toggle-row .row-label .desc {
+    font-size: 11.5px;
+    color: var(--fg-muted);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .switch {
+    width: 46px; height: 28px;
+    background: var(--border);
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    transition: background 200ms;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .switch::after {
+    content: ""; position: absolute;
+    top: 2px; left: 2px;
+    width: 24px; height: 24px;
+    background: #fff;
+    border-radius: 999px;
+    transition: transform 200ms;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  }
+  .switch.on { background: var(--accent); }
+  .switch.on::after { transform: translateX(18px); }
+
+  .setting-btn {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: var(--bg-alt);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .setting-btn:active { background: var(--bg-deep); }
+  .setting-btn.danger { color: #B0493A; }
+  :root[data-theme="dark"] .setting-btn.danger { color: #E89888; }
+
+  .meta-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-size: 12px;
+  }
+  .meta-row .k { color: var(--fg-muted); }
+  .meta-row .v { color: var(--fg); font-family: var(--font-mono); font-size: 11.5px; }
+
+  /* ═════════════════════════════════════════════════════════
+     10 · Install banner (small, dismissible) + offline indicator
+     ═════════════════════════════════════════════════════════ */
+  .toast-strip {
+    position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0;
+    z-index: 45;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 6px 12px 0;
+    pointer-events: none;
+  }
+  .toast {
+    pointer-events: auto;
+    background: var(--fg);
+    color: var(--bg);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    display: flex; align-items: center; gap: 8px;
+    max-width: calc(100% - 24px);
+  }
+  .toast button {
+    background: transparent; border: 0; color: inherit;
+    cursor: pointer; font-family: inherit;
+    text-decoration: underline;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .toast.offline { background: #B0493A; color: #fff; }
+
+  /* Screens */
+  .screen { display: none; }
+  .screen.active { display: block; }
+</style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- ── DAYS feed (default screen) ──────────────────── -->
+    <section class="screen active" data-screen="days">
+      <header class="head">
+        <div class="head-inner">
+          <div class="brand-row">
+            <div class="brand-title">
+              <div class="t">London &amp; Paris</div>
+              <div class="s" id="dateRange">May 22 — 31 · 2026</div>
+            </div>
+            <div class="head-actions">
+              <div class="day-counter"><b id="dayCount">10</b>days</div>
+              <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="rail" id="dayRail"></div>
+      </header>
+      <div class="day-feed" id="dayFeed"></div>
+    </section>
+
+    <!-- ── EAT screen ──────────────────────────────────── -->
+    <section class="screen" data-screen="eat">
+      <div class="scroll-screen">
+        <div class="h-sec">
+          <div class="ttl">Dining shortlist</div>
+          <div class="sub">Reserve early</div>
+        </div>
+        <div class="eat-tabs" id="eatTabs">
+          <button class="active" data-city="All">All</button>
+          <button data-city="London">London</button>
+          <button data-city="Paris">Paris</button>
+        </div>
+        <div id="eatList"></div>
+      </div>
+    </section>
+
+    <!-- ── SAFETY screen ───────────────────────────────── -->
+    <section class="screen" data-screen="safety">
+      <div class="scroll-screen">
+        <div class="h-sec">
+          <div class="ttl">Safety &amp; comfort</div>
+          <div class="sub">Tap a number to call</div>
+        </div>
+
+        <div class="safety-card">
+          <div class="h">Emergency — works offline</div>
+          <div id="emergencyList"></div>
+        </div>
+
+        <details class="acc" open>
+          <summary>Before leaving the U.S.</summary>
+          <ul>
+            <li>Confirm UK ETA approval for each traveler before boarding.</li>
+            <li>Enroll in STEP, save passport scans offline, confirm travel medical coverage.</li>
+            <li>Reserve Eurostar, timed museum entries, and at least three dinners before departure.</li>
+          </ul>
+        </details>
+        <details class="acc">
+          <summary>In London</summary>
+          <ul>
+            <li>Same contactless card for every TfL tap-in / tap-out.</li>
+            <li>Black cabs, hotel-arranged cars, or licensed rideshare after late dinners.</li>
+            <li>Favor buses, river boats, taxis, and step-free stations with luggage.</li>
+          </ul>
+        </details>
+        <details class="acc">
+          <summary>In Paris</summary>
+          <ul>
+            <li>Phones zipped away near Gare du Nord, Eiffel, Louvre, Sacré-Cœur, crowded Metro.</li>
+            <li>Ignore petition, bracelet, dropped-ring, unsolicited-help approaches.</li>
+            <li>Use official taxi stands, G7, or hotel-booked taxis late at night.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <!-- ── CHECKLIST screen ────────────────────────────── -->
+    <section class="screen" data-screen="list">
+      <div class="scroll-screen">
+        <div class="h-sec">
+          <div class="ttl">Pre-flight checklist</div>
+          <div class="sub" id="chkProgress">0 / 0</div>
+        </div>
+        <div class="chk-wrap" id="chkList"></div>
+      </div>
+    </section>
+
+    <!-- ── Floating "Today" button (shown when not on today's card) -->
+    <button class="today-fab hidden" id="todayFab" aria-label="Jump to today">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7 v5 l3 3"/>
+      </svg>
+      <span id="todayFabLabel">Today</span>
+    </button>
+
+    <!-- ── Bottom tab bar ──────────────────────────────── -->
+    <nav class="tabbar">
+      <button class="active" data-tab="days">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9 h18 M8 3 v4 M16 3 v4"/></svg>
+        </span>Days
+      </button>
+      <button data-tab="eat">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3 v8 a3 3 0 0 0 6 0 v-8"/><path d="M8 11 v10"/><path d="M16 3 c-2 0 -3 3 -3 6 s1 4 3 4 v8"/></svg>
+        </span>Eat
+      </button>
+      <button data-tab="safety">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L20 6 v6 c0 5 -4 8 -8 10 c-4 -2 -8 -5 -8 -10 V6 Z"/></svg>
+        </span>Safety
+      </button>
+      <button data-tab="list">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9 l2 2 l4 -4 M8 15 l2 2 l4 -4"/></svg>
+        </span>List
+      </button>
+    </nav>
+  </div>
+
+  <!-- ── Settings sheet (drawer) ─────────────────────── -->
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="ttl" id="sheetTitle">Settings</div>
+      <button class="x" id="sheetClose" aria-label="Close">×</button>
+    </div>
+
+    <div class="setting">
+      <div class="lbl">Theme</div>
+      <div class="seg" data-key="theme" id="segTheme">
+        <button data-val="auto">Match system</button>
+        <button data-val="light">Light</button>
+        <button data-val="sepia">Sepia</button>
+        <button data-val="dark">Dark</button>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="lbl">Font size</div>
+      <div class="seg" data-key="scale" id="segScale">
+        <button data-val="small">Small</button>
+        <button data-val="default">Default</button>
+        <button data-val="large">Large</button>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="lbl">Spacing</div>
+      <div class="seg" data-key="density" id="segDensity">
+        <button data-val="compact">Compact</button>
+        <button data-val="standard">Standard</button>
+        <button data-val="airy">Airy</button>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="toggle-row">
+        <div class="row-label">
+          <div class="title">Gentle pace only</div>
+          <div class="desc">Hide the full plan and show only the gentle version of each day.</div>
+        </div>
+        <div class="switch" id="switchGentle" role="switch" tabindex="0"></div>
+      </div>
+    </div>
+
+    <div class="setting">
+      <div class="lbl">App</div>
+      <div class="meta-row" style="margin-bottom: 10px;">
+        <span class="k">Offline cache</span>
+        <span class="v" id="cacheStatus">checking…</span>
+      </div>
+      <div class="meta-row" style="margin-bottom: 10px;">
+        <span class="k">Connection</span>
+        <span class="v" id="connStatus">online</span>
+      </div>
+      <button class="setting-btn" id="reloadBtn" style="margin-bottom: 8px;">Refresh cached content</button>
+      <button class="setting-btn danger" id="clearBtn">Clear checklist &amp; cache</button>
+    </div>
+
+    <div class="setting" style="border-bottom: 0; padding-top: 18px;">
+      <div class="lbl">About</div>
+      <div style="font-family: var(--font-serif); font-size: 13px; line-height: 1.5; color: var(--fg-muted);">
+        Built as a single static page. No accounts, no analytics, no live location.
+        Your settings and checklist are stored only in this browser. Photos and
+        fonts cache automatically on first view so the trip stays readable
+        without signal.
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Toast strip (install / offline) ─────────────── -->
+  <div class="toast-strip" id="toastStrip"></div>
+
+  <script>
+  // ═══════════════════════════════════════════════════════════
+  // 1 · Trip data — inline so the page works without any extra
+  //     fetches and ships as a single deployable file.
+  // ═══════════════════════════════════════════════════════════
+  window.TRIP = {
+    flight: {
+      out:  { code: "UA901", from: "SFO", to: "LHR", depart: "May 22, 1:05 PM", arrive: "May 23, 7:25 AM" },
+      back: { code: "UA949", from: "LHR", to: "SFO", depart: "May 31, 1:00 PM", arrive: "May 31, 4:05 PM" },
+    },
+    days: [
+      { n:1, date:"May 22", dateISO:"2026-05-22", num:"22", weekday:"Fri", city:"Travel",
+        title:"Depart San Francisco",
+        photo:"https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"International flight day",
+        map:"https://www.google.com/maps/dir/?api=1&origin=San+Francisco,+CA&destination=SFO+International+Terminal",
+        tags:["Flight day","UA901","Rest"],
+        morning:"Keep the morning empty except packing, documents, snacks, and airport transfer.",
+        afternoon:"UA901 SFO to LHR departs 1:05 PM. Arrive early enough for international check-in and a calm meal.",
+        evening:"Sleep strategy: set watches to London time after takeoff, hydrate, and avoid over-planning the first arrival day.",
+        comfort:"Pack compression socks, refillable bottles after security, eye masks, and one change of clothes in each carry-on.",
+        safety:"Keep passports, cards, and phones in a zipped personal item. Do not put documents in the seat pocket.",
+        food:"Eat a real lunch at SFO; use plane food as supplemental rather than relying on it.",
+        links:[["United status","https://www.united.com/en/us/flightstatus"],["SFO map","https://www.google.com/maps/search/?api=1&query=SFO+International+Terminal"]],
+        gentle:"Skip airport shopping. Board rested, hydrated, and unhurried." },
+      { n:2, date:"May 23", dateISO:"2026-05-23", num:"23", weekday:"Sat", city:"London",
+        title:"Arrival, recovery, a soft London landing",
+        photo:"https://images.unsplash.com/photo-1533929736458-ca588d08c8be?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"London arrival",
+        map:"https://www.google.com/maps/dir/?api=1&origin=Heathrow+Airport&destination=Hyde+Park+London&travelmode=transit",
+        tags:["Jet lag","Warm","Early dinner"],
+        morning:"Arrive LHR 7:25 AM. Use a prebooked car for maximum comfort, or Elizabeth line / Heathrow Express if luggage is light.",
+        afternoon:"Drop bags, walk Hyde Park or St James's Park, keep the first museum optional. Aim for sunlight, not sightseeing volume.",
+        evening:"Classic early dinner near the hotel, then sleep. The Wolseley, Dishoom Kensington, or a hotel restaurant are good low-friction choices.",
+        comfort:"Hotel before heroics. Shower, unpack, take a 25-minute nap only if necessary.",
+        safety:"Use only licensed taxis or official transit from Heathrow. Keep phones away from platform edges and station doors.",
+        food:"Book a 5:30–6:30 PM dinner so bedtime can happen naturally.",
+        links:[["LHR → London","https://www.google.com/maps/dir/Heathrow+Airport/London"],["Hyde Park","https://www.google.com/maps/search/?api=1&query=Hyde+Park+London"]],
+        gentle:"Replace any paid attraction with a park walk, tea, and a short taxi ride back." },
+      { n:3, date:"May 24", dateISO:"2026-05-24", num:"24", weekday:"Sun", city:"London",
+        title:"Westminster, royal parks, the Thames",
+        photo:"https://images.unsplash.com/photo-1520986606214-8b456906c813?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"Westminster & Thames",
+        map:"https://www.google.com/maps/dir/?api=1&origin=Westminster+Abbey&destination=Buckingham+Palace&waypoints=St+James's+Park|Westminster+Pier&travelmode=walking",
+        tags:["First-timer","Walkable","Reserve"],
+        morning:"Westminster Abbey timed entry, then Parliament Square and photos by the Thames.",
+        afternoon:"St James's Park to Buckingham Palace. If energy is good, add the Churchill War Rooms; otherwise a Thames river cruise.",
+        evening:"Dinner in Mayfair, Soho, or Covent Garden. Keep the route home simple.",
+        comfort:"The river cruise is the comfort upgrade: seated, scenic, easier on tired feet.",
+        safety:"Watch for bag and phone theft around Westminster Bridge and crowded photo spots.",
+        food:"Hawksmoor, Fallow, or Fortnum & Mason afternoon tea fit a polished but approachable day.",
+        links:[["Westminster Abbey","https://www.westminster-abbey.org/visit-us"],["Hawksmoor","https://thehawksmoor.com/"]],
+        gentle:"Do Westminster Abbey, St James's Park, and dinner only." },
+      { n:4, date:"May 25", dateISO:"2026-05-25", num:"25", weekday:"Mon", city:"London",
+        title:"Tower of London, a slower City day",
+        photo:"https://images.unsplash.com/photo-1505761671935-60b3a7427bad?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"Tower Bridge",
+        map:"https://www.google.com/maps/dir/?api=1&origin=Tower+of+London&destination=Borough+Market&waypoints=Tower+Bridge&travelmode=walking",
+        tags:["History","Hot","Taxi option"],
+        morning:"Tower of London at opening, before the day gets hottest and busiest. Prioritize Crown Jewels first.",
+        afternoon:"Tower Bridge views, then Borough Market or a seated lunch reservation nearby.",
+        evening:"Covent Garden, theatre district walk, or a simple reservation near the hotel.",
+        comfort:"Use a taxi between Tower and dinner if the heat is draining. This is not the day to prove stamina.",
+        safety:"Markets and bridge viewpoints are phone-theft zones. Keep one card in a separate pocket from the wallet.",
+        food:"Book a real lunch if Borough Market crowds feel too chaotic.",
+        links:[["Tower tickets","https://www.hrp.org.uk/tower-of-london/visit/tickets-and-prices/"],["Borough Market","https://www.google.com/maps/search/?api=1&query=Borough+Market+London"]],
+        gentle:"Tower of London plus one seated lunch; save Covent Garden for another night." },
+      { n:5, date:"May 26", dateISO:"2026-05-26", num:"26", weekday:"Tue", city:"Paris",
+        title:"Eurostar to Paris, the island core",
+        photo:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"Paris by train",
+        map:"https://www.google.com/maps/dir/?api=1&origin=Gare+du+Nord,+Paris&destination=Notre-Dame+de+Paris&travelmode=transit",
+        tags:["Train day","Passport","Arrival"],
+        morning:"Check out and go to London St Pancras with a 75–90 minute Eurostar buffer. Passport and luggage checks happen before boarding.",
+        afternoon:"Arrive Paris Gare du Nord, taxi or Metro to hotel, then settle in. Walk Île de la Cité and see Notre-Dame from outside.",
+        evening:"Dinner on the Left Bank or near the hotel. Keep the first Paris night gentle.",
+        comfort:"Use a taxi from Gare du Nord if carrying luggage. Costs more, removes the most stressful first Paris transfer.",
+        safety:"Gare du Nord is a prime pickpocket zone. No phones loose, no help from unofficial porters, no stopping for petitions.",
+        food:"Les Antiquaires, Breizh Café, or a hotel-neighborhood bistro are safer than chasing a distant reservation.",
+        links:[["Eurostar check-in","https://www.eurostar.com/us-en/travel-info/your-trip/check-in"],["Gare du Nord","https://www.google.com/maps/search/?api=1&query=Gare+du+Nord+Paris"]],
+        gentle:"After arrival, do hotel, Notre-Dame exterior, dinner, sleep." },
+      { n:6, date:"May 27", dateISO:"2026-05-27", num:"27", weekday:"Wed", city:"Paris",
+        title:"Louvre morning, Seine evening",
+        photo:"https://images.unsplash.com/photo-1565099824688-e93eb20fe622?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"Louvre & Seine",
+        map:"https://www.google.com/maps/dir/?api=1&origin=Mus%C3%A9e+du+Louvre,+Paris&destination=Bateaux+Mouches,+Paris&waypoints=Jardin+des+Tuileries|Place+Vend%C3%B4me&travelmode=walking",
+        tags:["Timed entry","Museum","Cruise"],
+        morning:"Timed Louvre entry. Pick 6–8 priorities instead of trying to conquer the museum.",
+        afternoon:"Tuileries, Place Vendôme, a seated café break. Optional Orangerie if energy allows.",
+        evening:"Seine cruise near sunset, then dinner by taxi or a short Metro ride.",
+        comfort:"Museum mornings plus café afternoons are better than back-to-back monuments.",
+        safety:"Keep bags closed at the Louvre pyramid, Tuileries, and cruise queues.",
+        food:"Benoit, Bistrot Paul Bert, or a reserved neighborhood bistro. Avoid wandering hungry at 9 PM.",
+        links:[["Louvre tickets","https://www.ticketlouvre.fr/louvre/b2c/index.cfm/home"],["Seine cruise","https://www.google.com/maps/search/?api=1&query=Bateaux+Mouches+Paris"]],
+        gentle:"Louvre, Tuileries, dinner. Move the cruise to May 28 if needed." },
+      { n:7, date:"May 28", dateISO:"2026-05-28", num:"28", weekday:"Thu", city:"Paris",
+        title:"Eiffel Tower, Rodin, the Left Bank",
+        photo:"https://images.unsplash.com/photo-1549144511-f099e773c147?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"Eiffel & Left Bank",
+        map:"https://www.google.com/maps/dir/?api=1&origin=Trocad%C3%A9ro,+Paris&destination=Saint-Germain-des-Pr%C3%A9s,+Paris&waypoints=Eiffel+Tower|Mus%C3%A9e+Rodin&travelmode=walking",
+        tags:["Icons","Photos","Shade"],
+        morning:"Eiffel Tower or Trocadéro photos early. If going up the tower, use official timed tickets only.",
+        afternoon:"Musée Rodin garden or Musée d'Orsay, then a quiet break around Saint-Germain-des-Prés.",
+        evening:"Classic dinner: Le Relais de l'Entrecôte, Les Antiquaires, or a reservation near Saint-Germain.",
+        comfort:"Choose either Eiffel ascent or Orsay, not both, if the weather is hot.",
+        safety:"Bracelet and petition scams cluster around Eiffel/Trocadéro. Keep walking and do not engage.",
+        food:"Earlier dinner reduces late-night Metro time and makes the next day easier.",
+        links:[["Eiffel Tower","https://www.toureiffel.paris/en/rates-opening-times"],["Musée d'Orsay","https://www.musee-orsay.fr/en/visit/admission-opening-times-tickets"]],
+        gentle:"Trocadéro photos, Rodin garden, Saint-Germain dinner." },
+      { n:8, date:"May 29", dateISO:"2026-05-29", num:"29", weekday:"Fri", city:"Paris",
+        title:"Versailles option or slow Paris",
+        photo:"https://images.unsplash.com/photo-1591289009723-aef0a1a8a211?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"Versailles day",
+        map:"https://www.google.com/maps/dir/?api=1&origin=Paris,+France&destination=Palace+of+Versailles&travelmode=transit",
+        tags:["Choice day","Reserve","Flex"],
+        morning:"If a grand day is wanted: Versailles with timed palace entry. If not, do Luxembourg Gardens and Saint-Sulpice.",
+        afternoon:"Versailles gardens, or a Left Bank lunch plus Le Bon Marché / Grande Épicerie browsing.",
+        evening:"Make this the nicest Paris dinner. Keep it reserved, seated, close to a direct taxi route home.",
+        comfort:"Versailles is rewarding but tiring. The slow Paris version may be better if heat or jet lag is still present.",
+        safety:"At Versailles and major stations, avoid open backpacks and keep tickets/phones secure.",
+        food:"Bistrot Paul Bert, Benoit, or another reserved bistro with a 7:00–8:00 PM table.",
+        links:[["Versailles","https://en.chateauversailles.fr/plan-your-visit/tickets-and-prices"],["Luxembourg Gardens","https://www.google.com/maps/search/?api=1&query=Jardin+du+Luxembourg+Paris"]],
+        gentle:"Skip Versailles. Luxembourg Gardens, lunch, one shop or museum, dinner." },
+      { n:9, date:"May 30", dateISO:"2026-05-30", num:"30", weekday:"Sat", city:"London",
+        title:"Return to London before the flight home",
+        photo:"https://images.unsplash.com/photo-1513026705753-bc3fffca8bf4?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"Eurostar return",
+        map:"https://www.google.com/maps/dir/?api=1&origin=Gare+du+Nord,+Paris&destination=London+St+Pancras+International&travelmode=transit",
+        tags:["Train day","Buffer","Airport"],
+        morning:"Pack, check out, do one small Paris pleasure: a bakery breakfast, Marais stroll, or last café.",
+        afternoon:"Eurostar Paris Gare du Nord to London St Pancras. Arrive 75–90 minutes before departure unless the ticket says otherwise.",
+        evening:"Sleep in London or near Heathrow. For the least-stressful May 31, consider Paddington or a Heathrow hotel.",
+        comfort:"Do not make this a big sightseeing day. The goal is to be in the UK before the return flight.",
+        safety:"Use official taxis or direct transit with luggage. Keep passports accessible but not visible.",
+        food:"Easy London dinner near the hotel; no ambitious cross-town reservation.",
+        links:[["St Pancras","https://www.google.com/maps/search/?api=1&query=London+St+Pancras+International"],["Heathrow hotels","https://www.google.com/maps/search/?api=1&query=Heathrow+Terminal+2+hotel"]],
+        gentle:"Bakery, train, hotel, early dinner. That is enough." },
+      { n:10, date:"May 31", dateISO:"2026-05-31", num:"31", weekday:"Sun", city:"Travel",
+        title:"Fly LHR to San Francisco",
+        photo:"https://images.unsplash.com/photo-1517445312882-bc9910d016b7?auto=format&fit=crop&w=900&q=72",
+        photoLabel:"Heathrow departure",
+        map:"https://www.google.com/maps/dir/?api=1&origin=London&destination=Heathrow+Terminal+2&travelmode=transit",
+        tags:["UA949","International","Home"],
+        morning:"Depart hotel early. For a 1:00 PM LHR flight, aim to be at the airport around 10:00 AM unless United advises otherwise.",
+        afternoon:"UA949 LHR to SFO departs 1:00 PM and arrives SFO 4:05 PM local time.",
+        evening:"At home: hydrate, light meal, keep Monday easy if possible.",
+        comfort:"United usually uses Terminal 2 at Heathrow, but verify in the United app before leaving the hotel.",
+        safety:"Keep VAT receipts, passports, medication, and devices in carry-on. Do a document count before airport security.",
+        food:"Have breakfast before the airport; use LHR food as a backup.",
+        links:[["United status","https://www.united.com/en/us/flightstatus"],["SFO arrivals","https://www.flysfo.com/passengers/flight-info/flight-status"]],
+        gentle:"Hotel, airport, flight. Nothing else belongs on this day." },
+    ],
+    restaurants: [
+      { city:"London", name:"The Wolseley", area:"Piccadilly", mood:"classic", note:"Elegant all-day room, reassuring service. Good for arrival day or a polished first dinner.", url:"https://www.thewolseley.com/" },
+      { city:"London", name:"Hawksmoor", area:"Multiple", mood:"steak", note:"Reliable British steakhouse for a celebratory meal without fine-dining stiffness.", url:"https://thehawksmoor.com/" },
+      { city:"London", name:"Dishoom Kensington", area:"Kensington", mood:"casual", note:"Comfortable, flavorful, familiar enough for tired travelers. Book if available.", url:"https://www.dishoom.com/" },
+      { city:"London", name:"Fallow", area:"St James's", mood:"modern", note:"Lively but approachable modern British cooking; good if an energetic room appeals.", url:"https://fallowrestaurant.com/" },
+      { city:"London", name:"Fortnum & Mason", area:"Piccadilly", mood:"tea", note:"A comfortable London ritual when dinner feels too heavy after jet lag.", url:"https://www.fortnumandmason.com/restaurants/afternoon-tea" },
+      { city:"Paris",  name:"Les Antiquaires", area:"7th", mood:"bistro", note:"Classic French menu near Orsay/Rodin; convenient for the Eiffel / Left Bank day.", url:"https://www.google.com/maps/search/?api=1&query=Les+Antiquaires+Paris" },
+      { city:"Paris",  name:"Bistrot Paul Bert", area:"11th", mood:"classic", note:"Beloved traditional bistro; reserve and take a taxi if staying across town.", url:"https://www.google.com/maps/search/?api=1&query=Bistrot+Paul+Bert+Paris" },
+      { city:"Paris",  name:"Breizh Café", area:"Multiple", mood:"casual", note:"Excellent galettes and crêpes; useful when everyone wants something easy but still French.", url:"https://www.breizhcafe.com/" },
+      { city:"Paris",  name:"Benoit", area:"4th", mood:"classic", note:"Historic bistro polish near the Marais and river; a good candidate for the nicest Paris dinner.", url:"https://www.benoit-paris.com/en/" },
+      { city:"Paris",  name:"Le Relais de l'Entrecôte", area:"Saint-Germain", mood:"steak", note:"Simple steak-frites ritual. Expect a line; go early if comfort matters.", url:"https://www.google.com/maps/search/?api=1&query=Le+Relais+de+l%27Entrecote+Saint-Germain+Paris" },
+    ],
+    checklist: [
+      ["UK ETA approved for each traveler", "U.S. visitors usually need individual ETA approval before travel to the UK."],
+      ["Passports and backup copies saved offline", "Keep one paper copy separate from the passport and one encrypted digital copy."],
+      ["Eurostar tickets booked both directions", "London → Paris May 26; Paris → London May 30 is the comfort-first assumption."],
+      ["Timed tickets reserved", "Prioritize Tower of London, Westminster Abbey, Louvre, Eiffel or Orsay, and Versailles if chosen."],
+      ["Dinner reservations made", "Book at least May 23, May 27, May 29, and May 30."],
+      ["Travel insurance and medication plan checked", "Carry prescriptions in original packaging; pack essential meds in hand luggage."],
+      ["Transit setup ready", "Contactless card for London; Bonjour RATP / IDF Mobilités or Navigo Easy plan for Paris."],
+      ["Anti-theft basics packed", "Crossbody zip bag, phone lanyard or secure pocket, backup card, small coin/card pouch."],
+      ["Weather plan packed", "Light layers, sunscreen, hats, comfortable walking shoes, refillable bottles for a warm late May."],
+    ],
+    emergencies: [
+      ["UK emergency", "999",        "tel:999"],
+      ["EU / France emergency", "112", "tel:112"],
+      ["U.S. Embassy London", "+44 20 7499 9000", "tel:+442074999000"],
+      ["U.S. Embassy Paris",  "+33 1 43 12 22 22", "tel:+33143122222"],
+    ],
+  };
+
+  // ═══════════════════════════════════════════════════════════
+  // 2 · Settings — persisted to localStorage; auto-applies on load
+  // ═══════════════════════════════════════════════════════════
+  const PREF_KEY = 'lp-trip-prefs-v2';
+  const DEFAULTS = { theme: 'light', scale: 'default', density: 'standard', gentle: false };
+
+  function loadPrefs() {
+    try {
+      const raw = localStorage.getItem(PREF_KEY);
+      if (!raw) return { ...DEFAULTS };
+      return { ...DEFAULTS, ...JSON.parse(raw) };
+    } catch { return { ...DEFAULTS }; }
+  }
+  function savePrefs(p) {
+    try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); } catch {}
+  }
+  function effectiveTheme(t) {
+    if (t === 'auto') {
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark' : 'light';
+    }
+    return t;
+  }
+  function applyPrefs(p) {
+    const root = document.documentElement;
+    root.setAttribute('data-theme',   effectiveTheme(p.theme));
+    root.setAttribute('data-scale',   p.scale);
+    root.setAttribute('data-density', p.density);
+    root.setAttribute('data-gentle',  p.gentle ? 'on' : 'off');
+    // Update browser chrome colour to match
+    const meta = document.querySelector('meta[name="theme-color"]:not([media])');
+    const tc = getComputedStyle(root).getPropertyValue('--meta-theme').trim();
+    if (meta && tc) meta.setAttribute('content', tc);
+  }
+  let PREFS = loadPrefs();
+  applyPrefs(PREFS);
+
+  // React to system theme changes when in "auto"
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (PREFS.theme === 'auto') applyPrefs(PREFS);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // 3 · "Today" detection
+  // ═══════════════════════════════════════════════════════════
+  function todayISO() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  function getTodayIdx() {
+    const iso = todayISO();
+    const T = window.TRIP;
+    for (let i = 0; i < T.days.length; i++) {
+      if (T.days[i].dateISO === iso) return i;
+    }
+    // Outside trip — return -1 (not on a trip day)
+    return -1;
+  }
+  function getTripState() {
+    const today = todayISO();
+    const T = window.TRIP;
+    if (today < T.days[0].dateISO) return { kind: 'before', idx: 0 };
+    if (today > T.days[T.days.length - 1].dateISO) return { kind: 'after', idx: T.days.length - 1 };
+    return { kind: 'during', idx: getTodayIdx() };
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // 4 · App rendering
+  // ═══════════════════════════════════════════════════════════
+  const T = window.TRIP;
+  const tripState = getTripState();
+  const TODAY_IDX = tripState.idx;   // index of "today", or first/last if outside range
+  let eatFilter = 'All';
+  const chkKey = (i) => `lp-chk-${i}`;
+
+  function cityClass(c) {
+    if (c === 'London') return 'is-london';
+    if (c === 'Paris')  return 'is-paris';
+    return 'is-travel';
+  }
+
+  // ── Day rail ─────────────────────────────────────────────
+  function renderRail() {
+    const todayISO_ = todayISO();
+    document.getElementById('dayRail').innerHTML = T.days.map((d, i) => {
+      const isToday = (d.dateISO === todayISO_);
+      const isPast = (d.dateISO < todayISO_);
+      const cls = [
+        'chip',
+        cityClass(d.city),
+        isToday ? 'is-today' : '',
+        isPast ? 'is-past' : '',
+        (i === TODAY_IDX && tripState.kind === 'during') ? 'active' : '',
+      ].filter(Boolean).join(' ');
+      return `
+        <button class="${cls}" data-idx="${i}" onclick="scrollToDay(${i})">
+          <div class="d">${d.num}</div>
+          <div class="w">${d.weekday}</div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  // ── Day feed ─────────────────────────────────────────────
+  function renderFeed() {
+    const todayISO_ = todayISO();
+    document.getElementById('dayFeed').innerHTML = T.days.map((d, i) => {
+      const isToday = (d.dateISO === todayISO_);
+      const tags = d.tags.map(t => `<span class="tag">${t}</span>`).join('');
+      const links = d.links.map(([label, url]) =>
+        `<a class="lnk arrow" href="${url}" target="_blank" rel="noreferrer">${label}</a>`
+      ).join('');
+      return `
+        <div class="day" id="day-${i}">
+          <div class="day-card ${isToday ? 'is-today' : ''}">
+            <div class="photo">
+              ${isToday ? `<div class="now-flag">Today</div>` : ''}
+              <img src="${d.photo}" alt="${d.photoLabel}" loading="lazy">
+              <div class="veil"></div>
+              <div class="day-pill"><b>${d.num}</b>${d.weekday}</div>
+              <div class="city-pill">${d.city}</div>
+              <div class="label">${d.photoLabel}</div>
+            </div>
+            <div class="day-body">
+              <div class="day-headline">${d.title}</div>
+              <div class="day-tags">${tags}</div>
+              <div class="timeline">
+                <div class="slot-label">Morning</div>
+                <div class="slot-text">${d.morning}</div>
+                <div class="slot-label">Afternoon</div>
+                <div class="slot-text">${d.afternoon}</div>
+                <div class="slot-label">Evening</div>
+                <div class="slot-text">${d.evening}</div>
+              </div>
+              <div class="extra ${isToday ? 'open' : ''}" id="extra-${i}">
+                <div class="notes-grid">
+                  <div class="note full-only">
+                    <div class="lbl">Comfort</div>
+                    <div class="txt">${d.comfort}</div>
+                  </div>
+                  <div class="note full-only">
+                    <div class="lbl">Safety</div>
+                    <div class="txt">${d.safety}</div>
+                  </div>
+                  <div class="note full-only">
+                    <div class="lbl">Food</div>
+                    <div class="txt">${d.food}</div>
+                  </div>
+                  <div class="note gentle gentle-only">
+                    <div class="lbl">Gentle pace</div>
+                    <div class="txt">${d.gentle}</div>
+                  </div>
+                </div>
+                <div class="links">
+                  <a class="lnk primary arrow" href="${d.map}" target="_blank" rel="noreferrer">Day map</a>
+                  ${links}
+                </div>
+              </div>
+              <button class="expand-btn ${isToday ? 'open' : ''}" onclick="toggleExtra(${i})">
+                <span class="lbl-closed">Show notes &amp; links</span>
+                <span class="lbl-open">Hide notes &amp; links</span>
+                <svg class="car" width="10" height="10" viewBox="0 0 10 10"><path d="M1 3 L5 7 L9 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    // Apply initial open state to is-today card
+    if (TODAY_IDX >= 0 && tripState.kind === 'during') {
+      const card = document.querySelector(`#day-${TODAY_IDX} .day-card`);
+      if (card) card.classList.add('open');
+    }
+  }
+
+  function toggleExtra(i) {
+    const ex = document.getElementById('extra-' + i);
+    const card = ex.closest('.day-card');
+    ex.classList.toggle('open');
+    card.classList.toggle('open');
+  }
+  window.toggleExtra = toggleExtra;
+
+  function scrollToDay(i) {
+    const el = document.getElementById('day-' + i);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.rail .chip').forEach((c, j) =>
+      c.classList.toggle('active', j === i));
+  }
+  window.scrollToDay = scrollToDay;
+
+  // ── Active-chip tracking on scroll + Today FAB visibility ─
+  let scrollTicking = false;
+  function onScroll() {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      // Only track on days screen
+      const onDays = document.querySelector('.screen[data-screen="days"]').classList.contains('active');
+      if (onDays) {
+        const y = window.scrollY + 140;
+        let active = 0;
+        for (let i = 0; i < T.days.length; i++) {
+          const el = document.getElementById('day-' + i);
+          if (el && el.offsetTop <= y) active = i;
+        }
+        document.querySelectorAll('.rail .chip').forEach((c, j) =>
+          c.classList.toggle('active', j === active));
+        // Today FAB: show when active != today (and we're on a trip day)
+        const fab = document.getElementById('todayFab');
+        if (tripState.kind === 'during' && active !== TODAY_IDX) {
+          fab.classList.remove('hidden');
+        } else {
+          fab.classList.add('hidden');
+        }
+      } else {
+        document.getElementById('todayFab').classList.add('hidden');
+      }
+      scrollTicking = false;
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // ── Eat ─────────────────────────────────────────────────
+  function renderEat() {
+    const items = T.restaurants.filter(r => eatFilter === 'All' || r.city === eatFilter);
+    document.getElementById('eatList').innerHTML = items.map(r => `
+      <div class="eat-card">
+        <div class="ec-top">
+          <div class="name">${r.name}</div>
+          <div class="city-flag">${r.city}</div>
+        </div>
+        <div class="meta">${r.area.toUpperCase()} · ${r.mood.toUpperCase()}</div>
+        <div class="note">${r.note}</div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('eatTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-city]');
+    if (!b) return;
+    document.querySelectorAll('#eatTabs button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    eatFilter = b.dataset.city;
+    renderEat();
+  });
+
+  // ── Safety: tap-to-call emergency numbers ───────────────
+  function renderEmergency() {
+    document.getElementById('emergencyList').innerHTML = T.emergencies.map(([k, v, tel]) => `
+      <div class="e-row"><div>${k}</div><a href="${tel}">${v}</a></div>
+    `).join('');
+  }
+
+  // ── Checklist ───────────────────────────────────────────
+  function renderChecklist() {
+    let done = 0;
+    const html = T.checklist.map(([title, note], i) => {
+      const isDone = localStorage.getItem(chkKey(i)) === '1';
+      if (isDone) done++;
+      return `
+        <div class="chk-row ${isDone ? 'done' : ''}" onclick="toggleChk(${i})">
+          <div class="chk-box"></div>
+          <div>
+            <div class="chk-title">${title}</div>
+            <div class="chk-note">${note}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('chkList').innerHTML = html;
+    document.getElementById('chkProgress').textContent = `${done} / ${T.checklist.length}`;
+  }
+  function toggleChk(i) {
+    const cur = localStorage.getItem(chkKey(i)) === '1';
+    localStorage.setItem(chkKey(i), cur ? '0' : '1');
+    renderChecklist();
+  }
+  window.toggleChk = toggleChk;
+
+  // ── Screen switching ────────────────────────────────────
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s =>
+      s.classList.toggle('active', s.dataset.screen === name));
+    document.querySelectorAll('.tabbar button').forEach(b =>
+      b.classList.toggle('active', b.dataset.tab === name));
+    window.scrollTo({ top: 0 });
+    if (name === 'eat')    renderEat();
+    if (name === 'safety') renderEmergency();
+    if (name === 'list')   renderChecklist();
+    if (name === 'days') setTimeout(() => {
+      if (tripState.kind === 'during') scrollToDay(TODAY_IDX);
+    }, 30);
+    document.getElementById('todayFab').classList.toggle('hidden', name !== 'days');
+  }
+  document.querySelector('.tabbar').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-tab]');
+    if (!b) return;
+    showScreen(b.dataset.tab);
+  });
+
+  // ── Today FAB click ─────────────────────────────────────
+  document.getElementById('todayFab').addEventListener('click', () => {
+    if (tripState.kind === 'during') scrollToDay(TODAY_IDX);
+  });
+
+  // ── Settings sheet ──────────────────────────────────────
+  const sheet = document.getElementById('sheet');
+  const backdrop = document.getElementById('sheetBackdrop');
+  function openSheet() {
+    refreshSettingsUI();
+    sheet.classList.add('open');
+    backdrop.classList.add('open');
+  }
+  function closeSheet() {
+    sheet.classList.remove('open');
+    backdrop.classList.remove('open');
+  }
+  document.getElementById('settingsBtn').addEventListener('click', openSheet);
+  document.getElementById('sheetClose').addEventListener('click', closeSheet);
+  backdrop.addEventListener('click', closeSheet);
+
+  // Segmented setters
+  ['segTheme', 'segScale', 'segDensity'].forEach(id => {
+    document.getElementById(id).addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-val]');
+      if (!b) return;
+      const key = e.currentTarget.dataset.key;
+      PREFS[key] = b.dataset.val;
+      savePrefs(PREFS);
+      applyPrefs(PREFS);
+      refreshSettingsUI();
+    });
+  });
+
+  document.getElementById('switchGentle').addEventListener('click', () => {
+    PREFS.gentle = !PREFS.gentle;
+    savePrefs(PREFS);
+    applyPrefs(PREFS);
+    refreshSettingsUI();
+  });
+
+  function refreshSettingsUI() {
+    ['theme', 'scale', 'density'].forEach(key => {
+      const id = 'seg' + key[0].toUpperCase() + key.slice(1);
+      document.querySelectorAll(`#${id} button`).forEach(b =>
+        b.classList.toggle('active', b.dataset.val === PREFS[key]));
+    });
+    document.getElementById('switchGentle').classList.toggle('on', PREFS.gentle);
+  }
+
+  // ── Clear & reload ──────────────────────────────────────
+  document.getElementById('clearBtn').addEventListener('click', async () => {
+    if (!confirm('Clear all checklist items and the offline cache? Settings will be kept.')) return;
+    // Clear checklist
+    for (let i = 0; i < T.checklist.length; i++) localStorage.removeItem(chkKey(i));
+    // Clear caches via SW
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const r of regs) await r.unregister();
+    }
+    if ('caches' in window) {
+      const names = await caches.keys();
+      await Promise.all(names.map(n => caches.delete(n)));
+    }
+    renderChecklist();
+    location.reload();
+  });
+  document.getElementById('reloadBtn').addEventListener('click', async () => {
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) await reg.update();
+    }
+    location.reload();
+  });
+
+  // ── Connection / cache status display ───────────────────
+  function updateConn() {
+    const el = document.getElementById('connStatus');
+    if (!el) return;
+    el.textContent = navigator.onLine ? 'online' : 'offline';
+    el.style.color = navigator.onLine ? 'var(--fg)' : '#B0493A';
+  }
+  window.addEventListener('online', updateConn);
+  window.addEventListener('offline', updateConn);
+
+  async function updateCacheStatus() {
+    const el = document.getElementById('cacheStatus');
+    if (!el) return;
+    if (!('caches' in window)) { el.textContent = 'unavailable'; return; }
+    try {
+      const names = await caches.keys();
+      if (!names.length) { el.textContent = 'empty'; return; }
+      let total = 0;
+      for (const n of names) {
+        const c = await caches.open(n);
+        const keys = await c.keys();
+        total += keys.length;
+      }
+      el.textContent = `${total} files`;
+    } catch { el.textContent = '—'; }
+  }
+
+  // ── Toasts (offline indicator) ──────────────────────────
+  const toastStrip = document.getElementById('toastStrip');
+  let offlineToast = null;
+  function showOfflineToast() {
+    if (offlineToast) return;
+    offlineToast = document.createElement('div');
+    offlineToast.className = 'toast offline';
+    offlineToast.innerHTML = `<span>Offline — using saved copy</span>`;
+    toastStrip.appendChild(offlineToast);
+  }
+  function hideOfflineToast() {
+    if (!offlineToast) return;
+    offlineToast.remove();
+    offlineToast = null;
+  }
+  window.addEventListener('offline', showOfflineToast);
+  window.addEventListener('online', hideOfflineToast);
+  if (!navigator.onLine) showOfflineToast();
+  updateConn();
+
+  // ── Service worker registration ─────────────────────────
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').then((reg) => {
+        // Listen for updates and prompt a reload toast
+        reg.addEventListener('updatefound', () => {
+          const w = reg.installing;
+          if (!w) return;
+          w.addEventListener('statechange', () => {
+            if (w.state === 'installed' && navigator.serviceWorker.controller) {
+              const t = document.createElement('div');
+              t.className = 'toast';
+              t.innerHTML = `<span>New version available.</span><button id="updNow">Reload</button>`;
+              toastStrip.appendChild(t);
+              t.querySelector('#updNow').addEventListener('click', () => location.reload());
+            }
+          });
+        });
+        updateCacheStatus();
+      }).catch(() => {});
+    });
+  }
+
+  // ── Initial render ──────────────────────────────────────
+  renderRail();
+  renderFeed();
+  // After paint, scroll to today
+  setTimeout(() => {
+    if (tripState.kind === 'during') scrollToDay(TODAY_IDX);
+    else {
+      // Centre the rail on the first/last day
+      const railChip = document.querySelector(`.rail .chip[data-idx="${TODAY_IDX}"]`);
+      if (railChip) railChip.scrollIntoView({ inline: 'center', block: 'nearest' });
+    }
+  }, 60);
+
+  // Friendly empty-state toasts for before / after trip
+  if (tripState.kind === 'before') {
+    const days = Math.ceil((new Date(T.days[0].dateISO) - new Date(todayISO())) / 86400000);
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = `<span>Trip starts in ${days} day${days === 1 ? '' : 's'} (${T.days[0].date}).</span>`;
+    toastStrip.appendChild(t);
+  } else if (tripState.kind === 'after') {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = `<span>Trip complete. Welcome home.</span>`;
+    toastStrip.appendChild(t);
+  }
+  </script>
+</body>
+</html>

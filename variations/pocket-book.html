@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-density="standard" data-scale="default" data-gentle="off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=402, initial-scale=1">
+<title>London & Paris · Pocket Book</title>
+<link rel="stylesheet" href="../shared/base.css">
+<style>
+  /* Variation A — Pocket Book
+     Field-guide editorial. Hairlines, serif numerals, restrained color. */
+
+  body { background: var(--bg); }
+
+  .app {
+    width: 100%; height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Top header: paper-stock strip with edition stamp */
+  .pb-top {
+    position: sticky; top: 0; z-index: 12;
+    padding: 64px 20px 14px;
+    border-bottom: 1px solid var(--hairline);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+  }
+  .pb-edition {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--fg-muted); font-weight: 500;
+  }
+  .pb-edition .mark { display: flex; align-items: center; gap: 6px; color: var(--fg); }
+  .pb-edition .mark .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); display:inline-block; }
+  .pb-title-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-top: 10px;
+  }
+  .pb-title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    line-height: 1;
+  }
+  .pb-pageno {
+    font-family: var(--font-serif);
+    font-size: 12px;
+    color: var(--fg-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .pb-scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding-bottom: 110px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── DAY READER ─────────────────────────────────────── */
+  .day-head {
+    padding: 18px 20px 0;
+    display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: end;
+  }
+  .day-numeral {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 84px;
+    line-height: 0.82;
+    letter-spacing: -0.05em;
+    color: var(--fg);
+  }
+  .day-meta {
+    padding-bottom: 6px;
+  }
+  .day-meta .weekday {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--fg-muted); font-weight: 500;
+  }
+  .day-meta .city {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--fg);
+    margin-top: 2px;
+  }
+  .day-meta .date {
+    font-family: var(--font-serif);
+    font-size: 13px;
+    color: var(--fg-muted);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .day-title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--fg);
+    padding: 16px 20px 4px;
+  }
+
+  .day-tags {
+    padding: 8px 20px 14px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+
+  .photo-strip {
+    margin: 8px 20px 18px;
+    height: 132px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-deep);
+  }
+  .photo-strip img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: contrast(0.95) saturate(0.85);
+    display: block;
+  }
+  .photo-strip::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: var(--photo-tint);
+    pointer-events: none;
+  }
+  .photo-strip .caption {
+    position: absolute; left: 10px; bottom: 8px;
+    font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: #fff; background: rgba(0,0,0,0.45);
+    padding: 3px 7px; border-radius: 999px;
+    font-weight: 500;
+  }
+
+  .field {
+    padding: 0 20px;
+    margin-bottom: 18px;
+  }
+  .field .label {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 6px;
+  }
+  .field .label .roman {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--accent);
+    font-feature-settings: "smcp";
+    min-width: 18px;
+  }
+  .field .label .name {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--fg-muted); font-weight: 500;
+  }
+  .field .body {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--fg);
+    padding-left: 28px;
+    border-left: 1px solid var(--hairline);
+  }
+
+  .footnote {
+    margin: 22px 20px 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--hairline);
+  }
+  .footnote-row {
+    display: flex; gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .footnote-row:last-child { border-bottom: 0; }
+  .footnote-row .key {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--fg-muted); font-weight: 500;
+    width: 60px; flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .footnote-row .val {
+    font-family: var(--font-serif);
+    font-size: 13.5px; line-height: 1.45; color: var(--fg);
+  }
+
+  .gentle-note {
+    margin: 18px 20px 4px;
+    padding: 10px 12px 12px;
+    background: var(--accent-bg);
+    border-radius: 6px;
+    border-left: 2px solid var(--accent);
+  }
+  .gentle-note .lbl {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent); font-weight: 600;
+  }
+  .gentle-note .txt {
+    font-family: var(--font-serif); font-size: 14px; line-height: 1.5;
+    color: var(--fg); margin-top: 4px; font-style: italic;
+  }
+
+  .links-row {
+    padding: 6px 20px 16px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .lnk {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    padding: 6px 10px;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    text-decoration: none;
+    color: var(--fg);
+    background: transparent;
+  }
+  .lnk.arrow::after { content: " ↗"; color: var(--fg-muted); }
+
+  /* Day navigator — at bottom of reader screen */
+  .day-nav {
+    margin: 8px 20px 24px;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--hairline);
+  }
+  .day-nav button {
+    border: 0; background: transparent; cursor: pointer;
+    font-family: var(--font-sans); font-size: 12px;
+    color: var(--fg); padding: 8px 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .day-nav button .arrow { font-family: var(--font-serif); font-size: 18px; line-height: 1; }
+  .day-nav button.prev { justify-self: start; }
+  .day-nav button.next { justify-self: end; }
+  .day-nav button:disabled { color: var(--fg-faint); cursor: default; }
+  .day-nav .center {
+    font-family: var(--font-serif); font-size: 11px;
+    color: var(--fg-muted); font-style: italic;
+  }
+
+  /* ── DAYS INDEX ─────────────────────────────────────── */
+  .index-list { padding: 8px 0 0; }
+  .idx-row {
+    display: grid; grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--hairline);
+    cursor: pointer;
+    background: transparent;
+    border-left: 0; border-right: 0; border-bottom: 0;
+    width: 100%; text-align: left;
+    font-family: inherit; color: inherit;
+  }
+  .idx-row:last-child { border-bottom: 1px solid var(--hairline); }
+  .idx-row .nm {
+    font-family: var(--font-serif);
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--fg);
+  }
+  .idx-row .info .ttl {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+  }
+  .idx-row .info .sub {
+    font-size: 11px;
+    color: var(--fg-muted);
+    margin-top: 3px;
+    letter-spacing: 0.02em;
+  }
+  .idx-row .chev {
+    color: var(--fg-faint);
+    font-family: var(--font-serif);
+    font-size: 18px;
+  }
+  .idx-row.current .nm { color: var(--accent); }
+  .idx-row.current::before {
+    content: ""; display: inline-block;
+    width: 3px; height: 36px; background: var(--accent);
+    margin-left: -3px; border-radius: 2px;
+    position: absolute;
+  }
+
+  /* Section header inside scrolling content */
+  .h-sec {
+    padding: 18px 20px 6px;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .h-sec .ttl {
+    font-family: var(--font-serif); font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em; color: var(--fg);
+  }
+  .h-sec .sub {
+    font-size: 11px; color: var(--fg-muted); letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── EAT LIST ───────────────────────────────────────── */
+  .eat-tabs {
+    display: flex; padding: 6px 20px 0; gap: 4px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .eat-tabs button {
+    flex: 1; background: transparent; border: 0;
+    padding: 8px 4px 10px; cursor: pointer;
+    font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+    color: var(--fg-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .eat-tabs button.active {
+    color: var(--fg);
+    border-bottom-color: var(--accent);
+  }
+  .eat-row {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 10px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .eat-row .name {
+    font-family: var(--font-serif); font-size: 17px; line-height: 1.15;
+    color: var(--fg); letter-spacing: -0.01em;
+  }
+  .eat-row .meta {
+    font-size: 11px; color: var(--fg-muted); margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+  .eat-row .note {
+    font-family: var(--font-serif); font-size: 13px; line-height: 1.4;
+    color: var(--fg); margin-top: 6px;
+  }
+  .eat-row .city-mark {
+    font-family: var(--font-serif); font-size: 11px; font-style: italic;
+    color: var(--accent);
+    align-self: start;
+  }
+
+  /* ── SAFETY ─────────────────────────────────────────── */
+  .safety-box {
+    margin: 12px 20px 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--hairline-strong);
+    border-radius: 8px;
+    background: var(--bg-elev);
+  }
+  .safety-box .h {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--accent); font-weight: 600; margin-bottom: 8px;
+  }
+  .emergency-row {
+    display: grid; grid-template-columns: 1fr auto;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 13px;
+  }
+  .emergency-row:last-child { border-bottom: 0; }
+  .emergency-row .num {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--fg);
+  }
+
+  details.acc {
+    border-top: 1px solid var(--hairline);
+    padding: 12px 20px;
+  }
+  details.acc[open] { background: var(--bg-alt); }
+  details.acc summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-serif); font-size: 15px;
+    color: var(--fg); letter-spacing: -0.005em;
+  }
+  details.acc summary::-webkit-details-marker { display: none; }
+  details.acc summary::after {
+    content: "+"; font-family: var(--font-serif); font-size: 18px;
+    color: var(--fg-muted); transition: transform 200ms;
+  }
+  details.acc[open] summary::after { content: "−"; }
+  details.acc ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    font-family: var(--font-serif);
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--fg);
+  }
+  details.acc ul li { margin-bottom: 6px; }
+
+  /* ── CHECKLIST ─────────────────────────────────────── */
+  .chk-row {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--hairline);
+    align-items: start;
+    cursor: pointer;
+  }
+  .chk-row:last-child { border-bottom: 1px solid var(--hairline); }
+  .chk-box {
+    width: 18px; height: 18px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    margin-top: 2px;
+    background: var(--bg-elev);
+    display: grid; place-items: center;
+  }
+  .chk-row.done .chk-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .chk-row.done .chk-box::after {
+    content: "✓"; color: #fff; font-size: 12px; font-weight: 700;
+  }
+  .chk-row .chk-title {
+    font-family: var(--font-serif);
+    font-size: 14.5px; line-height: 1.3;
+    color: var(--fg); letter-spacing: -0.005em;
+  }
+  .chk-row.done .chk-title {
+    color: var(--fg-muted); text-decoration: line-through;
+  }
+  .chk-row .chk-note {
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    color: var(--fg-muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* Screens */
+  .screen { display: none; }
+  .screen.active { display: block; }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <div class="pb-scroll" id="scroller">
+    <!-- Top edition strip — shared by all screens -->
+    <header class="pb-top">
+      <div class="pb-edition">
+        <span class="mark"><span class="dot"></span> The Pocket Book</span>
+        <span id="screenLabel">Day reader</span>
+      </div>
+      <div class="pb-title-row">
+        <div class="pb-title">London &amp; Paris</div>
+        <div class="pb-pageno">May 22 — 31 · 2026</div>
+      </div>
+    </header>
+
+      <!-- DAY READER -->
+      <section class="screen active" data-screen="today">
+        <div id="dayBody"></div>
+      </section>
+
+      <!-- DAYS INDEX -->
+      <section class="screen" data-screen="days">
+        <div class="h-sec">
+          <div class="ttl">All ten days</div>
+          <div class="sub">10 entries</div>
+        </div>
+        <div class="index-list" id="indexList"></div>
+      </section>
+
+      <!-- EAT -->
+      <section class="screen" data-screen="eat">
+        <div class="h-sec">
+          <div class="ttl">Dining shortlist</div>
+          <div class="sub">Reserve early</div>
+        </div>
+        <div class="eat-tabs" id="eatTabs">
+          <button class="active" data-city="All">All</button>
+          <button data-city="London">London</button>
+          <button data-city="Paris">Paris</button>
+        </div>
+        <div id="eatList"></div>
+      </section>
+
+      <!-- SAFETY -->
+      <section class="screen" data-screen="safety">
+        <div class="h-sec">
+          <div class="ttl">Safety &amp; comfort</div>
+          <div class="sub">Read twice</div>
+        </div>
+
+        <div class="safety-box">
+          <div class="h">Emergency numbers — save offline</div>
+          <div id="emergencyList"></div>
+        </div>
+
+        <details class="acc" open>
+          <summary>Before leaving the U.S.</summary>
+          <ul>
+            <li>Confirm both travelers have UK ETA approval before boarding.</li>
+            <li>Enroll in STEP, save passport scans offline, confirm travel medical coverage.</li>
+            <li>Reserve Eurostar tickets, timed museum entries, and at least three dinners before departure.</li>
+          </ul>
+        </details>
+        <details class="acc">
+          <summary>In London</summary>
+          <ul>
+            <li>Use the same contactless card or phone for every TfL tap-in/tap-out.</li>
+            <li>Use black cabs, hotel-arranged cars, or licensed rideshare after late dinners.</li>
+            <li>Favor buses, river boats, taxis, and step-free stations over long Tube transfers with luggage.</li>
+          </ul>
+        </details>
+        <details class="acc">
+          <summary>In Paris</summary>
+          <ul>
+            <li>Keep phones zipped away near Gare du Nord, Eiffel Tower, Louvre, Sacré-Cœur, and crowded Metro lines.</li>
+            <li>Ignore petition, bracelet, dropped-ring, and unsolicited-help approaches.</li>
+            <li>Use official taxi stands, G7, or hotel-booked taxis late at night.</li>
+          </ul>
+        </details>
+      </section>
+
+      <!-- CHECKLIST -->
+      <section class="screen" data-screen="list">
+        <div class="h-sec">
+          <div class="ttl">Pre-flight checklist</div>
+          <div class="sub" id="chkProgress">0 / 0</div>
+        </div>
+        <div id="chkList"></div>
+      </section>
+
+    </div>
+
+    <!-- Bottom tabs -->
+    <nav class="tabbar" style="--tab-count: 5;" aria-label="Sections">
+      <button class="active" data-tab="today">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L20 6.5 L20 17.5 L12 22 L4 17.5 L4 6.5 Z"/><path d="M12 2 v20 M4 6.5 L12 11 L20 6.5"/></svg>
+        </span>
+        Today
+      </button>
+      <button data-tab="days">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </span>
+        Days
+      </button>
+      <button data-tab="eat">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3 v8 a3 3 0 0 0 6 0 v-8"/><path d="M8 11 v10"/><path d="M16 3 c-2 0 -3 3 -3 6 s1 4 3 4 v8"/></svg>
+        </span>
+        Eat
+      </button>
+      <button data-tab="safety">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L20 6 v6 c0 5 -4 8 -8 10 c-4 -2 -8 -5 -8 -10 V6 Z"/></svg>
+        </span>
+        Safety
+      </button>
+      <button data-tab="list">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9 l2 2 l4 -4 M8 15 l2 2 l4 -4"/></svg>
+        </span>
+        List
+      </button>
+    </nav>
+  </div>
+
+  <script src="../data/trip.js"></script>
+  <script src="../shared/tweaks-listener.js"></script>
+  <script>
+    const T = window.TRIP;
+    let dayIdx = 2;     // start at May 24 — a substantive day to land on
+    let curScreen = 'today';
+    let eatFilter = 'All';
+    const chkKey = (i) => `pb-chk-${i}`;
+
+    const romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+    const SECTIONS = [
+      ['Morning',   'morning'],
+      ['Afternoon', 'afternoon'],
+      ['Evening',   'evening'],
+    ];
+
+    // ── Render the day reader ─────────────────────────
+    function renderDay() {
+      const d = T.days[dayIdx];
+      const cityClass = d.city === 'Paris' ? 'tag solid' : (d.city === 'London' ? 'tag solid' : 'tag');
+      const tags = d.tags.map(t => `<span class="tag">${t}</span>`).join('');
+      const fields = SECTIONS.map(([name, key], i) => `
+        <div class="field full-only">
+          <div class="label">
+            <span class="roman">${romans[i]}</span>
+            <span class="name">${name}</span>
+          </div>
+          <div class="body">${d[key]}</div>
+        </div>
+      `).join('');
+
+      const gentle = `
+        <div class="field gentle-only">
+          <div class="label">
+            <span class="roman">G</span>
+            <span class="name">Gentle pace</span>
+          </div>
+          <div class="body" style="font-style: italic;">${d.gentle}</div>
+        </div>
+      `;
+
+      const footnotes = `
+        <div class="footnote">
+          <div class="footnote-row"><div class="key">Comfort</div><div class="val">${d.comfort}</div></div>
+          <div class="footnote-row"><div class="key">Safety</div><div class="val">${d.safety}</div></div>
+          <div class="footnote-row"><div class="key">Food</div><div class="val">${d.food}</div></div>
+        </div>
+      `;
+
+      const links = d.links.map(([label, url]) =>
+        `<a class="lnk arrow" href="${url}" target="_blank" rel="noreferrer">${label}</a>`
+      ).join('') + `<a class="lnk arrow" href="${d.map}" target="_blank" rel="noreferrer">Day map</a>`;
+
+      const prev = T.days[dayIdx - 1];
+      const next = T.days[dayIdx + 1];
+      const nav = `
+        <div class="day-nav">
+          <button class="prev" ${dayIdx === 0 ? 'disabled' : ''} onclick="goDay(${dayIdx - 1})">
+            <span class="arrow">←</span> ${prev ? prev.date : 'Start'}
+          </button>
+          <div class="center">Day ${dayIdx + 1} of 10</div>
+          <button class="next" ${dayIdx === 9 ? 'disabled' : ''} onclick="goDay(${dayIdx + 1})">
+            ${next ? next.date : 'End'} <span class="arrow">→</span>
+          </button>
+        </div>
+      `;
+
+      document.getElementById('dayBody').innerHTML = `
+        <div class="day-head">
+          <div class="day-numeral">${d.num}</div>
+          <div class="day-meta">
+            <div class="weekday">${d.weekday}</div>
+            <div class="city">${d.city}</div>
+            <div class="date">${d.date}</div>
+          </div>
+        </div>
+        <h1 class="day-title">${d.title}</h1>
+        <div class="day-tags">${tags}</div>
+        <div class="photo-strip">
+          <img src="${d.photo}" alt="${d.photoLabel}" loading="lazy">
+          <span class="caption">${d.photoLabel}</span>
+        </div>
+        ${fields}
+        ${gentle}
+        ${footnotes}
+        <div class="links-row">${links}</div>
+        ${nav}
+      `;
+    }
+
+    function goDay(i) {
+      if (i < 0 || i > 9) return;
+      dayIdx = i;
+      renderDay();
+      showScreen('today');
+      document.getElementById('scroller').scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    window.goDay = goDay;
+
+    // ── Index list ────────────────────────────────────
+    function renderIndex() {
+      document.getElementById('indexList').innerHTML = T.days.map((d, i) => `
+        <button class="idx-row ${i === dayIdx ? 'current' : ''}" onclick="goDay(${i})">
+          <div class="nm">${d.num}</div>
+          <div class="info">
+            <div class="ttl">${d.title}</div>
+            <div class="sub">${d.weekday.toUpperCase()} · ${d.city.toUpperCase()}</div>
+          </div>
+          <div class="chev">→</div>
+        </button>
+      `).join('');
+    }
+
+    // ── Eat list ──────────────────────────────────────
+    function renderEat() {
+      const items = T.restaurants.filter(r => eatFilter === 'All' || r.city === eatFilter);
+      document.getElementById('eatList').innerHTML = items.map(r => `
+        <div class="eat-row">
+          <div>
+            <div class="name">${r.name}</div>
+            <div class="meta">${r.area.toUpperCase()} · ${r.mood.toUpperCase()}</div>
+            <div class="note">${r.note}</div>
+          </div>
+          <div class="city-mark">${r.city}</div>
+        </div>
+      `).join('');
+    }
+    document.getElementById('eatTabs').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-city]');
+      if (!b) return;
+      document.querySelectorAll('#eatTabs button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      eatFilter = b.dataset.city;
+      renderEat();
+    });
+
+    // ── Safety ────────────────────────────────────────
+    function renderEmergency() {
+      document.getElementById('emergencyList').innerHTML = T.emergencies.map(([k, v]) =>
+        `<div class="emergency-row"><div>${k}</div><div class="num">${v}</div></div>`
+      ).join('');
+    }
+
+    // ── Checklist ─────────────────────────────────────
+    function renderChecklist() {
+      let done = 0;
+      const html = T.checklist.map(([title, note], i) => {
+        const isDone = localStorage.getItem(chkKey(i)) === '1';
+        if (isDone) done++;
+        return `
+          <div class="chk-row ${isDone ? 'done' : ''}" onclick="toggleChk(${i})">
+            <div class="chk-box"></div>
+            <div>
+              <div class="chk-title">${title}</div>
+              <div class="chk-note">${note}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('chkList').innerHTML = html;
+      document.getElementById('chkProgress').textContent = `${done} / ${T.checklist.length}`;
+    }
+    function toggleChk(i) {
+      const cur = localStorage.getItem(chkKey(i)) === '1';
+      localStorage.setItem(chkKey(i), cur ? '0' : '1');
+      renderChecklist();
+    }
+    window.toggleChk = toggleChk;
+
+    // ── Screen switching ──────────────────────────────
+    function showScreen(name) {
+      curScreen = name;
+      document.querySelectorAll('.screen').forEach(s => {
+        s.classList.toggle('active', s.dataset.screen === name);
+      });
+      document.querySelectorAll('.tabbar button').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === name);
+      });
+      const labels = { today: 'Day reader', days: 'Index', eat: 'Dining', safety: 'Safety', list: 'Checklist' };
+      document.getElementById('screenLabel').textContent = labels[name] || '';
+      document.getElementById('scroller').scrollTo({ top: 0 });
+      if (name === 'days')   renderIndex();
+      if (name === 'eat')    renderEat();
+      if (name === 'safety') renderEmergency();
+      if (name === 'list')   renderChecklist();
+    }
+    document.querySelector('.tabbar').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-tab]');
+      if (!b) return;
+      showScreen(b.dataset.tab);
+    });
+
+    // Initial render
+    renderDay();
+    renderIndex();
+  </script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>London &amp; Paris — Mobile Companion</title>
+  <link rel="stylesheet" href="shared/tokens.css">
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background: var(--book);
+      color: var(--fg);
+      font-family: var(--font-sans);
+      overflow: hidden;
+    }
+    .canvas-wrap {
+      position: fixed; inset: 0;
+    }
+    /* Override design-canvas internal background to use book */
+    .dc-frame { background: var(--ivory); }
+
+    /* Note above each phone (variation name + one-liner) */
+    .variant-card {
+      width: 402px;
+      padding: 0;
+      background: transparent;
+    }
+    .variant-card .phone-stage {
+      position: relative;
+      width: 402px;
+      height: 874px;
+    }
+    /* The iframe that sits inside the iOSDevice */
+    .phone-stage iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: 0;
+      background: transparent;
+      border-radius: 48px;
+    }
+
+    /* Variation caption below phone */
+    .caption {
+      width: 402px;
+      margin-top: 32px;
+      padding: 0 8px;
+    }
+    .caption .num {
+      font-family: var(--font-serif);
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--accent);
+      font-style: italic;
+    }
+    .caption .ttl {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: 26px;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      line-height: 1.15;
+      margin-top: 4px;
+    }
+    .caption .lede {
+      font-family: var(--font-serif);
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: var(--fg-muted);
+      margin-top: 8px;
+    }
+    .caption .specs {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid var(--hairline);
+      display: grid; grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .caption .spec {
+      display: grid; grid-template-columns: 96px 1fr; gap: 12px;
+      font-size: 12.5px;
+      color: var(--fg);
+    }
+    .caption .spec .k {
+      font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.10em;
+      color: var(--fg-muted); font-weight: 500;
+      padding-top: 1px;
+    }
+    .caption .spec .v {
+      font-family: var(--font-serif); font-size: 13px; line-height: 1.4;
+    }
+
+    /* Optional: floating "intro" card at top of canvas via post-it */
+    .intro-card {
+      background: var(--paper);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 24px 26px 22px;
+      width: 540px;
+      font-family: var(--font-sans);
+      box-shadow: var(--shadow-sm);
+    }
+    .intro-card .eyebrow {
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); font-weight: 500;
+    }
+    .intro-card h1 {
+      font-family: var(--font-serif); font-weight: 400;
+      font-size: 36px; letter-spacing: -0.02em;
+      line-height: 1.05; margin: 8px 0 12px;
+      color: var(--fg);
+    }
+    .intro-card p {
+      font-family: var(--font-serif);
+      font-size: 16px; line-height: 1.55;
+      color: var(--fg); margin: 0 0 10px;
+    }
+    .intro-card p.muted { color: var(--fg-muted); font-size: 14.5px; }
+    .intro-card .meta {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--hairline);
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-size: 12.5px; color: var(--fg-muted);
+    }
+    .intro-card .meta b {
+      font-family: var(--font-serif); font-weight: 400;
+      color: var(--fg); font-size: 13.5px;
+    }
+  </style>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body style="font-family: &quot;Comic Sans MS&quot;">
+  <div class="canvas-wrap" id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="ios-frame.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo } = React;
+
+    // Default tweaks — wrapped in the EDITMODE markers so the host can persist them.
+    const TRIP_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "theme": "dark",
+      "density": "airy",
+      "scale": "large",
+      "gentle": true
+    }/*EDITMODE-END*/;
+
+    // ---------------------------------------------------------------
+    // Variation metadata
+    // ---------------------------------------------------------------
+    const VARIATIONS = [
+      {
+        id: 'pocket-book',
+        num: 'I',
+        label: 'A · Pocket Book',
+        title: 'Pocket book',
+        lede: 'Serif numerals, hairline rules, single day on screen. The calmest option — closest to a printed field guide tucked into a coat pocket.',
+        specs: [
+          ['Nav', 'Bottom tabs (Today · Days · Eat · Safety · List). Prev / next at bottom of day.'],
+          ['Voice', 'Editorial. Roman numerals for Morning / Afternoon / Evening, italic dates.'],
+          ['Strong when', 'Reading one day with intent. Letting the trip feel slow on purpose.'],
+        ],
+        src: 'variations/pocket-book.html',
+      },
+      {
+        id: 'stack-browse',
+        num: 'II',
+        label: 'B · Stack browse',
+        title: 'Stack browse',
+        lede: 'All ten days in one calm feed with a sticky day-rail at the top. Browse, tap a chip, scroll back.',
+        specs: [
+          ['Nav', 'Sticky day rail at top + bottom tabs (Days · Eat · Safety · List).'],
+          ['Voice', 'Product-leaning. Photo card per day, expandable notes underneath.'],
+          ['Strong when', 'On the train, scanning ahead. Comparing today with tomorrow.'],
+        ],
+        src: 'variations/stack-browse.html',
+      },
+      {
+        id: 'today-pane',
+        num: 'III',
+        label: 'C · Today pane',
+        title: 'Today pane',
+        lede: 'Photo-forward, single day, horizontal swipe between days. A slate-dark "Now" bubble tells you what comes next.',
+        specs: [
+          ['Nav', 'Horizontal pager + bottom tabs (Today · Trip · Eat · Safety).'],
+          ['Voice', 'Most claude.ai-like. Time-of-day chip auto-picks the relevant section.'],
+          ['Strong when', 'Mid-day check-in. "What am I supposed to be doing right now?"'],
+        ],
+        src: 'variations/today-pane.html',
+      },
+    ];
+
+    // ---------------------------------------------------------------
+    // PhoneFrame — iOSDevice wrapping an iframe to the variation
+    // ---------------------------------------------------------------
+    function PhoneFrame({ src, tweaks, dark }) {
+      const iframeRef = useRef(null);
+      const readyRef = useRef(false);
+
+      // Send tweaks to iframe whenever they change (and on ready ping)
+      const send = () => {
+        if (!iframeRef.current || !iframeRef.current.contentWindow) return;
+        iframeRef.current.contentWindow.postMessage(
+          { type: '__trip_tweaks', state: tweaks },
+          '*'
+        );
+      };
+
+      useEffect(() => {
+        if (readyRef.current) send();
+      });
+
+      useEffect(() => {
+        function onMsg(e) {
+          if (e.source !== (iframeRef.current && iframeRef.current.contentWindow)) return;
+          if (e.data && e.data.type === '__trip_ready') {
+            readyRef.current = true;
+            send();
+          }
+        }
+        window.addEventListener('message', onMsg);
+        return () => window.removeEventListener('message', onMsg);
+      }, []);
+
+      return (
+        <IOSDevice width={402} height={874} dark={dark}>
+          <div style={{ position: 'absolute', inset: 0, borderRadius: 48, overflow: 'hidden' }}>
+            <iframe
+              ref={iframeRef}
+              src={src}
+              title="prototype"
+              onLoad={send}
+              style={{
+                position: 'absolute', inset: 0, width: '100%', height: '100%',
+                border: 0, background: 'transparent',
+              }}
+            />
+          </div>
+        </IOSDevice>
+      );
+    }
+
+    // ---------------------------------------------------------------
+    // Caption block under each phone
+    // ---------------------------------------------------------------
+    function Caption({ v }) {
+      return (
+        <div className="caption">
+          <div className="num">Option {v.num}</div>
+          <div className="ttl">{v.title}</div>
+          <div className="lede">{v.lede}</div>
+          <div className="specs">
+            {v.specs.map(([k, val]) => (
+              <div className="spec" key={k}>
+                <div className="k">{k}</div>
+                <div className="v">{val}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // ---------------------------------------------------------------
+    // Intro panel — sits on the canvas as an artboard
+    // ---------------------------------------------------------------
+    function IntroPanel() {
+      return (
+        <div className="intro-card">
+          <div className="eyebrow">Brief</div>
+          <h1>A calm mobile companion for ten days in London and Paris.</h1>
+          <p>
+            Three takes on the same content — a 10-day itinerary, a dining shortlist,
+            safety notes, and a pre-flight checklist — designed for one specific job:
+            being easy to browse on a phone while in transit, in a foreign place,
+            in an unexpected or stressful situation.
+          </p>
+          <p className="muted">
+            All three use the Anthropic system in its claude.ai dialect: warm Book
+            paper background, hairline rules, Source Serif 4 for editorial moments,
+            sans for UI, Crail coral used sparingly. No personal details are baked
+            into the page; the file stays deploy-safe.
+          </p>
+          <div className="meta">
+            <div><b>10 days</b><br/>May 22 — 31, 2026</div>
+            <div><b>Two cities</b><br/>London &amp; Paris</div>
+            <div><b>3 prototypes</b><br/>Try tweaks on each</div>
+            <div><b>402 × 874</b><br/>iPhone-class viewport</div>
+          </div>
+        </div>
+      );
+    }
+
+    // ---------------------------------------------------------------
+    // App with shared Tweaks
+    // ---------------------------------------------------------------
+    function App() {
+      const [tweaks, setTweaks] = useTweaks(TRIP_DEFAULTS);
+
+      // Bridge old-style local state so PhoneFrame just gets a plain object
+      const state = useMemo(() => ({
+        theme: tweaks.theme,
+        density: tweaks.density,
+        scale: tweaks.scale,
+        gentle: tweaks.gentle,
+      }), [tweaks.theme, tweaks.density, tweaks.scale, tweaks.gentle]);
+
+      const dark = tweaks.theme === 'dark';
+
+      return (
+        <>
+          <DesignCanvas>
+            <DCSection id="intro" title="London & Paris" subtitle="Mobile companion · three takes on the Anthropic system">
+              <DCArtboard id="brief" label="Brief" width={600} height={420}>
+                <IntroPanel />
+              </DCArtboard>
+            </DCSection>
+
+            <DCSection id="phones" title="Three prototypes" subtitle="Toggle the Tweaks panel to compare them under the same theme / density / scale">
+              {VARIATIONS.map(v => (
+                <DCArtboard key={v.id} id={v.id} label={v.label} width={402} height={1240}>
+                  <div className="variant-card">
+                    <div className="phone-stage">
+                      <PhoneFrame src={v.src} tweaks={state} dark={dark} />
+                    </div>
+                    <Caption v={v} />
+                  </div>
+                </DCArtboard>
+              ))}
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Appearance">
+              <TweakRadio
+                label="Theme"
+                value={tweaks.theme}
+                onChange={(v) => setTweaks('theme', v)}
+                options={[
+                  { value: 'light', label: 'Light' },
+                  { value: 'sepia', label: 'Sepia' },
+                  { value: 'dark',  label: 'Dark'  },
+                ]}
+              />
+              <TweakRadio
+                label="Font scale"
+                value={tweaks.scale}
+                onChange={(v) => setTweaks('scale', v)}
+                options={[
+                  { value: 'small',   label: 'Small'   },
+                  { value: 'default', label: 'Default' },
+                  { value: 'large',   label: 'Large'   },
+                ]}
+              />
+              <TweakRadio
+                label="Density"
+                value={tweaks.density}
+                onChange={(v) => setTweaks('density', v)}
+                options={[
+                  { value: 'compact',  label: 'Compact'  },
+                  { value: 'standard', label: 'Standard' },
+                  { value: 'airy',     label: 'Airy'     },
+                ]}
+              />
+            </TweakSection>
+
+            <TweakSection label="Plan">
+              <TweakToggle
+                label="Gentle pace only"
+                value={tweaks.gentle}
+                onChange={(v) => setTweaks('gentle', v)}
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

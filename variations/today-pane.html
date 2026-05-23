@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-density="standard" data-scale="default" data-gentle="off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=402, initial-scale=1">
+<title>London & Paris · Today</title>
+<link rel="stylesheet" href="../shared/base.css">
+<style>
+  /* Variation C — Today Pane
+     Photo-forward, one day at a time, horizontal swipe.
+     A "Now" callout sits on top — chat-bubble shape borrowed from claude.ai. */
+
+  body { background: var(--bg); }
+
+  .app {
+    width: 100%; height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Top bar ──────────────────────────────────────── */
+  .top {
+    position: absolute; left: 0; right: 0; top: 0; z-index: 30;
+    padding: 56px 14px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    pointer-events: none;
+  }
+  .top > * { pointer-events: auto; }
+  .top .lockup {
+    background: rgba(255,253,250,0.85);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(31,30,29,0.10);
+    display: flex; align-items: center; gap: 7px;
+    color: #1F1E1D;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .top .lockup .dot {
+    width: 7px; height: 7px; border-radius: 999px; background: var(--accent);
+  }
+  .top .day-of {
+    background: rgba(255,253,250,0.85);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(31,30,29,0.10);
+    font-family: var(--font-serif);
+    font-size: 12px;
+    color: #1F1E1D;
+    letter-spacing: 0;
+  }
+  :root[data-theme="dark"] .top .lockup,
+  :root[data-theme="dark"] .top .day-of {
+    background: rgba(22,20,15,0.7);
+    color: var(--fg);
+    border-color: rgba(239,234,217,0.10);
+  }
+
+  /* ── Today screen ─────────────────────────────────── */
+  .pager {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    height: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .pager::-webkit-scrollbar { display: none; }
+  .pane {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    scroll-snap-align: start;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .pane::-webkit-scrollbar { display: none; }
+
+  /* Hero photo */
+  .hero {
+    position: relative;
+    height: 320px;
+    overflow: hidden;
+    background: var(--bg-deep);
+  }
+  .hero img {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block;
+    filter: contrast(0.95) saturate(0.88);
+  }
+  .hero .veil {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg,
+      rgba(20,18,12,0.30) 0%,
+      rgba(20,18,12,0.05) 25%,
+      rgba(20,18,12,0.0) 50%,
+      rgba(20,18,12,0.55) 100%);
+  }
+  .hero-meta {
+    position: absolute; left: 18px; right: 18px; bottom: 18px;
+    color: #fff;
+  }
+  .hero-meta .pre {
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.85); font-weight: 500;
+  }
+  .hero-meta .num {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-top: 4px;
+  }
+  .hero-meta .num .n {
+    font-family: var(--font-serif);
+    font-size: 74px;
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    color: #fff;
+  }
+  .hero-meta .num .w {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    color: rgba(255,255,255,0.85);
+    font-style: italic;
+  }
+  .hero-meta .city {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: rgba(255,255,255,0.9);
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Now bubble (chat-bubble style, slate dark like claude.ai) */
+  .now {
+    position: relative;
+    margin: -28px 18px 14px;
+    z-index: 4;
+    background: var(--fg);
+    color: var(--bg);
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    padding: 12px 14px 14px;
+    box-shadow: 0 8px 24px -10px rgba(31,30,29,0.40);
+  }
+  .now .head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  }
+  .now .mark {
+    width: 16px; height: 16px;
+  }
+  .now .lbl {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: color-mix(in srgb, var(--bg) 70%, transparent);
+    font-weight: 500;
+  }
+  .now .txt {
+    font-family: var(--font-serif);
+    font-size: 14.5px;
+    line-height: 1.45;
+    letter-spacing: -0.005em;
+  }
+  .now .txt b {
+    font-weight: 400;
+    color: var(--bg);
+  }
+  .now .when-pills {
+    display: flex; gap: 4px; margin-top: 10px;
+  }
+  .now .when-pills button {
+    flex: 1;
+    background: color-mix(in srgb, var(--bg) 15%, transparent);
+    color: color-mix(in srgb, var(--bg) 70%, transparent);
+    border: 1px solid color-mix(in srgb, var(--bg) 15%, transparent);
+    border-radius: 999px;
+    padding: 6px 4px;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    cursor: pointer;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .now .when-pills button.active {
+    background: var(--bg);
+    color: var(--fg);
+    border-color: transparent;
+  }
+
+  /* Day content */
+  .day-headline {
+    padding: 4px 20px 4px;
+    font-family: var(--font-serif);
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--fg);
+  }
+  .day-tags {
+    padding: 8px 20px 4px;
+    display: flex; flex-wrap: wrap; gap: 5px;
+  }
+
+  .sections {
+    padding: 12px 18px 4px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .sec {
+    background: var(--bg-elev);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 14px 14px 14px;
+    position: relative;
+  }
+  .sec .when-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .sec .when {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--fg-muted); font-weight: 500;
+  }
+  .sec .tick {
+    font-size: 10.5px;
+    color: var(--fg-faint);
+    letter-spacing: 0.04em;
+  }
+  .sec .txt {
+    font-family: var(--font-serif);
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--fg);
+  }
+  .sec.highlight {
+    background: var(--accent-bg);
+    border-color: transparent;
+  }
+  :root[data-theme="dark"] .sec.highlight {
+    background: var(--accent-bg);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .sec.highlight .when { color: var(--accent); }
+
+  /* Comfort/safety/food micro-grid */
+  .micro {
+    padding: 6px 18px 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .micro-card {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--bg-alt);
+    border: 1px solid var(--hairline);
+    align-items: start;
+  }
+  .micro-card .ic {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--bg-elev);
+    border: 1px solid var(--hairline);
+    display: grid; place-items: center;
+    color: var(--fg-muted);
+  }
+  .micro-card .body {
+    grid-column: 2;
+  }
+  .micro-card .ic {
+    grid-column: 1;
+  }
+  .micro-card .lbl {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--fg-muted); font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .micro-card .txt {
+    font-family: var(--font-serif); font-size: 13.5px; line-height: 1.45;
+    color: var(--fg); margin-top: 4px;
+  }
+
+  /* Gentle */
+  .gentle-card {
+    margin: 8px 18px 4px;
+    padding: 10px 12px;
+    background: var(--accent-bg);
+    border-radius: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  .gentle-card .lbl {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--accent); font-weight: 600;
+  }
+  .gentle-card .txt {
+    font-family: var(--font-serif); font-size: 13.5px; line-height: 1.45;
+    color: var(--fg); margin-top: 4px; font-style: italic;
+  }
+
+  /* Action row at bottom of pane */
+  .actions {
+    padding: 12px 18px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .actions .btn {
+    height: 40px; font-size: 13px;
+  }
+  .actions .btn.wide { grid-column: span 2; }
+
+  /* Pager controls + dots */
+  .pager-controls {
+    position: absolute; left: 0; right: 0; bottom: 88px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 14px;
+    z-index: 25;
+    pointer-events: none;
+  }
+  .pager-controls > * { pointer-events: auto; }
+  .chev {
+    width: 40px; height: 40px;
+    border-radius: 999px;
+    background: rgba(255,253,250,0.92);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid var(--hairline);
+    color: var(--fg);
+    cursor: pointer;
+    display: grid; place-items: center;
+    font-size: 18px; font-weight: 500;
+    box-shadow: 0 6px 16px -8px rgba(31,30,29,0.25);
+  }
+  .chev:disabled { opacity: 0.4; cursor: default; }
+  .dots {
+    display: flex; gap: 5px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(255,253,250,0.85);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid var(--hairline);
+    box-shadow: 0 6px 16px -8px rgba(31,30,29,0.20);
+  }
+  :root[data-theme="dark"] .chev,
+  :root[data-theme="dark"] .dots {
+    background: rgba(22,20,15,0.85);
+    border-color: rgba(239,234,217,0.12);
+    color: var(--fg);
+  }
+  .dots .dot {
+    width: 6px; height: 6px; border-radius: 999px;
+    background: var(--fg-muted); opacity: 0.45;
+    cursor: pointer;
+  }
+  .dots .dot.active {
+    background: var(--accent); opacity: 1;
+    width: 18px;
+  }
+
+  /* ── Trip overview / other screens ──────────────── */
+  .h-sec {
+    padding: 12px 20px 8px;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  .h-sec .ttl {
+    font-family: var(--font-serif); font-weight: 400;
+    font-size: 22px; letter-spacing: -0.02em; color: var(--fg);
+  }
+  .h-sec .sub {
+    font-size: 11px; color: var(--fg-muted); letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Trip overview as a numbered timeline */
+  .trip-thread {
+    padding: 4px 20px 0;
+    position: relative;
+  }
+  .trip-thread::before {
+    content: ""; position: absolute;
+    left: 38px; top: 8px; bottom: 8px;
+    width: 1px; background: var(--hairline);
+  }
+  .trip-day {
+    display: grid; grid-template-columns: 32px 1fr;
+    gap: 14px;
+    padding: 10px 0;
+    cursor: pointer;
+    background: transparent; border: 0; width: 100%;
+    text-align: left;
+    color: inherit;
+    font-family: inherit;
+  }
+  .trip-day .dot {
+    width: 24px; height: 24px; border-radius: 999px;
+    background: var(--bg-elev);
+    border: 1px solid var(--hairline);
+    margin-top: 2px;
+    display: grid; place-items: center;
+    font-family: var(--font-serif); font-size: 11px;
+    color: var(--fg);
+    z-index: 1;
+  }
+  .trip-day.is-current .dot {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .trip-day .info .city {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--fg-muted); font-weight: 500;
+  }
+  .trip-day .info .ttl {
+    font-family: var(--font-serif); font-size: 15px; line-height: 1.25;
+    color: var(--fg); letter-spacing: -0.01em; margin-top: 2px;
+  }
+  .trip-day .info .when {
+    font-size: 11px; color: var(--fg-muted); margin-top: 4px;
+    font-style: italic;
+  }
+  .trip-day.is-current .info .ttl { color: var(--accent); }
+
+  /* ── EAT ─────────────────────────────────────────── */
+  .eat-tabs {
+    display: flex; gap: 6px;
+    padding: 0 18px 12px;
+  }
+  .eat-tabs button {
+    padding: 6px 12px;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--fg-muted);
+    font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+    cursor: pointer;
+  }
+  .eat-tabs button.active {
+    background: var(--fg); color: var(--bg); border-color: transparent;
+  }
+  .eat-card {
+    margin: 0 18px 10px;
+    padding: 14px;
+    background: var(--bg-elev);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+  }
+  .eat-card .ec-top {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 10px;
+  }
+  .eat-card .name {
+    font-family: var(--font-serif); font-size: 17px;
+    letter-spacing: -0.01em; color: var(--fg);
+    line-height: 1.2;
+  }
+  .eat-card .city-flag {
+    font-family: var(--font-serif); font-style: italic;
+    font-size: 12px; color: var(--accent);
+  }
+  .eat-card .meta {
+    font-size: 11px; color: var(--fg-muted);
+    margin-top: 4px; letter-spacing: 0.04em;
+  }
+  .eat-card .note {
+    font-family: var(--font-serif); font-size: 13.5px;
+    line-height: 1.45; color: var(--fg); margin-top: 8px;
+  }
+
+  /* ── Safety ─────────────────────────────────────── */
+  .safety-card {
+    margin: 0 18px 12px;
+    padding: 14px;
+    background: var(--fg);
+    color: var(--bg);
+    border-radius: 12px;
+  }
+  .safety-card .h {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: color-mix(in srgb, var(--bg) 70%, transparent);
+    font-weight: 600; margin-bottom: 10px;
+  }
+  .e-row {
+    display: grid; grid-template-columns: 1fr auto;
+    padding: 8px 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--bg) 15%, transparent);
+    font-size: 13px;
+    color: var(--bg);
+  }
+  .e-row:last-child { border-bottom: 0; }
+  .e-row .num { font-family: var(--font-mono); font-size: 12.5px; }
+
+  details.acc {
+    margin: 0 18px 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: var(--bg-elev);
+  }
+  details.acc[open] { background: var(--bg-alt); }
+  details.acc summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-serif); font-size: 14.5px; color: var(--fg);
+  }
+  details.acc summary::-webkit-details-marker { display: none; }
+  details.acc summary::after {
+    content: "+"; font-family: var(--font-serif); font-size: 16px;
+    color: var(--fg-muted);
+  }
+  details.acc[open] summary::after { content: "−"; }
+  details.acc ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    font-family: var(--font-serif);
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--fg);
+  }
+  details.acc ul li { margin-bottom: 6px; }
+
+  /* Screens */
+  .screen { display: none; height: 100%; position: relative; }
+  .screen.active { display: block; }
+  .scroll-screen {
+    padding-top: 90px; padding-bottom: 110px;
+    overflow-y: auto;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Top brand strip (shared) -->
+    <div class="top">
+      <div class="lockup">
+        <span class="dot"></span>
+        <span id="topBrand">Today</span>
+      </div>
+      <div class="day-of" id="topDayOf">Day 3 of 10</div>
+    </div>
+
+    <!-- TODAY screen — horizontal pager -->
+    <section class="screen active" data-screen="today">
+      <div class="pager" id="pager"></div>
+      <div class="pager-controls">
+        <button class="chev" id="prev" aria-label="Previous day">‹</button>
+        <div class="dots" id="dots"></div>
+        <button class="chev" id="next" aria-label="Next day">›</button>
+      </div>
+    </section>
+
+    <!-- TRIP overview -->
+    <section class="screen" data-screen="trip">
+      <div class="scroll-screen">
+        <div class="h-sec">
+          <div class="ttl">The whole trip</div>
+          <div class="sub">10 days</div>
+        </div>
+        <div class="trip-thread" id="tripThread"></div>
+      </div>
+    </section>
+
+    <!-- EAT -->
+    <section class="screen" data-screen="eat">
+      <div class="scroll-screen">
+        <div class="h-sec">
+          <div class="ttl">Dining shortlist</div>
+          <div class="sub">Reserve early</div>
+        </div>
+        <div class="eat-tabs" id="eatTabs">
+          <button class="active" data-city="All">All</button>
+          <button data-city="London">London</button>
+          <button data-city="Paris">Paris</button>
+        </div>
+        <div id="eatList"></div>
+      </div>
+    </section>
+
+    <!-- SAFETY -->
+    <section class="screen" data-screen="safety">
+      <div class="scroll-screen">
+        <div class="h-sec">
+          <div class="ttl">Safety &amp; comfort</div>
+          <div class="sub">Read twice</div>
+        </div>
+
+        <div class="safety-card">
+          <div class="h">Emergency — save offline</div>
+          <div id="emergencyList"></div>
+        </div>
+
+        <details class="acc" open>
+          <summary>Before leaving the U.S.</summary>
+          <ul>
+            <li>Confirm UK ETA approval for each traveler before boarding.</li>
+            <li>Enroll in STEP, save passport scans offline, confirm travel medical coverage.</li>
+            <li>Reserve Eurostar, timed museum entries, and at least three dinners before departure.</li>
+          </ul>
+        </details>
+        <details class="acc">
+          <summary>In London</summary>
+          <ul>
+            <li>Same contactless card for every TfL tap-in / tap-out.</li>
+            <li>Black cabs, hotel-arranged cars, or licensed rideshare after late dinners.</li>
+            <li>Favor buses, river boats, taxis, and step-free stations with luggage.</li>
+          </ul>
+        </details>
+        <details class="acc">
+          <summary>In Paris</summary>
+          <ul>
+            <li>Phones zipped away near Gare du Nord, Eiffel, Louvre, Sacré-Cœur, crowded Metro.</li>
+            <li>Ignore petition, bracelet, dropped-ring, unsolicited-help approaches.</li>
+            <li>Use official taxi stands, G7, or hotel-booked taxis late at night.</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+
+    <nav class="tabbar" style="--tab-count: 4;">
+      <button class="active" data-tab="today">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7 v5 l3 3"/></svg>
+        </span>
+        Today
+      </button>
+      <button data-tab="trip">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6 h18 M3 12 h18 M3 18 h12"/><circle cx="19" cy="18" r="2"/></svg>
+        </span>
+        Trip
+      </button>
+      <button data-tab="eat">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3 v8 a3 3 0 0 0 6 0 v-8"/><path d="M8 11 v10"/><path d="M16 3 c-2 0 -3 3 -3 6 s1 4 3 4 v8"/></svg>
+        </span>
+        Eat
+      </button>
+      <button data-tab="safety">
+        <span class="ticon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L20 6 v6 c0 5 -4 8 -8 10 c-4 -2 -8 -5 -8 -10 V6 Z"/></svg>
+        </span>
+        Safety
+      </button>
+    </nav>
+  </div>
+
+  <script src="../data/trip.js"></script>
+  <script src="../shared/tweaks-listener.js"></script>
+  <script>
+    const T = window.TRIP;
+    const TODAY_IDX = 2; // simulated "today" — May 24
+    let curIdx = TODAY_IDX;
+    let whenMode = 'auto';    // auto | morning | afternoon | evening
+    let eatFilter = 'All';
+
+    // Default time-of-day based on current clock for the "Now" callout
+    function defaultWhen() {
+      const h = new Date().getHours();
+      if (h < 12) return 'morning';
+      if (h < 17) return 'afternoon';
+      return 'evening';
+    }
+
+    const WHEN_LABELS = {
+      morning:   'Right now — Morning',
+      afternoon: 'Right now — Afternoon',
+      evening:   'Right now — Evening',
+    };
+
+    function renderPager() {
+      document.getElementById('pager').innerHTML = T.days.map((d, i) => `
+        <div class="pane" data-idx="${i}">
+          <div class="hero">
+            <img src="${d.photo}" alt="${d.photoLabel}" loading="lazy">
+            <div class="veil"></div>
+            <div class="hero-meta">
+              <div class="pre">${d.city}</div>
+              <div class="num">
+                <span class="n">${d.num}</span>
+                <span class="w">${d.weekday}, May</span>
+              </div>
+              <div class="city">${d.photoLabel}</div>
+            </div>
+          </div>
+
+          <div class="now" id="now-${i}">
+            <div class="head">
+              <svg class="mark" viewBox="0 0 24 24"><path d="M12 2 L14.6 9.4 L22 12 L14.6 14.6 L12 22 L9.4 14.6 L2 12 L9.4 9.4 Z" fill="currentColor"/></svg>
+              <span class="lbl" id="now-lbl-${i}">Right now</span>
+            </div>
+            <div class="txt" id="now-txt-${i}"></div>
+            <div class="when-pills">
+              <button data-when="morning"   onclick="setWhen(${i}, 'morning')">Morning</button>
+              <button data-when="afternoon" onclick="setWhen(${i}, 'afternoon')">Afternoon</button>
+              <button data-when="evening"   onclick="setWhen(${i}, 'evening')">Evening</button>
+            </div>
+          </div>
+
+          <h2 class="day-headline">${d.title}</h2>
+          <div class="day-tags">${d.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+
+          <div class="sections">
+            <div class="sec" data-when="morning">
+              <div class="when-row"><div class="when">Morning</div><div class="tick">${d.city}</div></div>
+              <div class="txt">${d.morning}</div>
+            </div>
+            <div class="sec" data-when="afternoon">
+              <div class="when-row"><div class="when">Afternoon</div><div class="tick">${d.city}</div></div>
+              <div class="txt">${d.afternoon}</div>
+            </div>
+            <div class="sec" data-when="evening">
+              <div class="when-row"><div class="when">Evening</div><div class="tick">${d.city}</div></div>
+              <div class="txt">${d.evening}</div>
+            </div>
+          </div>
+
+          <div class="micro full-only">
+            <div class="micro-card">
+              <div class="ic">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 12 L11.5 14.5 L16 10"/></svg>
+              </div>
+              <div class="body">
+                <div class="lbl">Comfort</div>
+                <div class="txt">${d.comfort}</div>
+              </div>
+            </div>
+            <div class="micro-card">
+              <div class="ic">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L20 6 v6 c0 5 -4 8 -8 10 c-4 -2 -8 -5 -8 -10 V6 Z"/></svg>
+              </div>
+              <div class="body">
+                <div class="lbl">Safety</div>
+                <div class="txt">${d.safety}</div>
+              </div>
+            </div>
+            <div class="micro-card">
+              <div class="ic">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4 v6 a3 3 0 0 0 4 0 V4 M8 10 v10"/><path d="M16 4 c-1.5 0 -2 3 -2 5 s.7 3 2 3 v8"/></svg>
+              </div>
+              <div class="body">
+                <div class="lbl">Food</div>
+                <div class="txt">${d.food}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="gentle-card gentle-only">
+            <div class="lbl">Gentle pace</div>
+            <div class="txt">${d.gentle}</div>
+          </div>
+
+          <div class="actions">
+            <a class="btn primary wide" href="${d.map}" target="_blank" rel="noreferrer">Open day map ↗</a>
+            ${d.links.slice(0, 2).map(([label, url]) =>
+              `<a class="btn" href="${url}" target="_blank" rel="noreferrer">${label} ↗</a>`).join('')}
+          </div>
+          <div style="height: 70px;"></div>
+        </div>
+      `).join('');
+
+      // Dots
+      document.getElementById('dots').innerHTML = T.days.map((_, i) =>
+        `<div class="dot ${i === TODAY_IDX ? 'active' : ''}" data-i="${i}" onclick="goPage(${i})"></div>`
+      ).join('');
+    }
+
+    function refreshNow(i, w) {
+      const d = T.days[i];
+      const key = w === 'auto' ? defaultWhen() : w;
+      document.getElementById('now-txt-' + i).innerHTML = d[key];
+      document.getElementById('now-lbl-' + i).textContent = WHEN_LABELS[key];
+      // pills + highlighted section
+      const pane = document.querySelectorAll('.pane')[i];
+      pane.querySelectorAll('.when-pills button').forEach(b =>
+        b.classList.toggle('active', b.dataset.when === key));
+      pane.querySelectorAll('.sec').forEach(s =>
+        s.classList.toggle('highlight', s.dataset.when === key));
+    }
+
+    function setWhen(i, w) {
+      whenMode = w;
+      refreshNow(i, w);
+    }
+    window.setWhen = setWhen;
+
+    function goPage(i, opts) {
+      const smooth = !opts || opts.smooth !== false;
+      const pager = document.getElementById('pager');
+      const w = pager.clientWidth;
+      pager.scrollTo({ left: w * i, behavior: smooth ? 'smooth' : 'auto' });
+    }
+    window.goPage = goPage;
+
+    function syncIdx() {
+      const pager = document.getElementById('pager');
+      const w = pager.clientWidth;
+      if (!w) return;
+      const i = Math.round(pager.scrollLeft / w);
+      if (i === curIdx) return;
+      curIdx = i;
+      document.querySelectorAll('#dots .dot').forEach((d, j) => d.classList.toggle('active', j === i));
+      document.getElementById('prev').disabled = (i === 0);
+      document.getElementById('next').disabled = (i === T.days.length - 1);
+      document.getElementById('topDayOf').textContent = `Day ${i + 1} of 10`;
+      refreshNow(i, whenMode);
+    }
+    document.getElementById('pager').addEventListener('scroll', () => {
+      requestAnimationFrame(syncIdx);
+    });
+
+    document.getElementById('prev').addEventListener('click', () => goPage(Math.max(0, curIdx - 1)));
+    document.getElementById('next').addEventListener('click', () => goPage(Math.min(T.days.length - 1, curIdx + 1)));
+
+    // ── Trip thread ────────────────────────────────
+    function renderTrip() {
+      document.getElementById('tripThread').innerHTML = T.days.map((d, i) => `
+        <button class="trip-day ${i === TODAY_IDX ? 'is-current' : ''}" onclick="jumpToDay(${i})">
+          <div class="dot">${d.num}</div>
+          <div class="info">
+            <div class="city">${d.weekday.toUpperCase()} · ${d.city.toUpperCase()}</div>
+            <div class="ttl">${d.title}</div>
+            <div class="when">${d.date}</div>
+          </div>
+        </button>
+      `).join('');
+    }
+    function jumpToDay(i) {
+      showScreen('today');
+      setTimeout(() => goPage(i, { smooth: false }), 60);
+    }
+    window.jumpToDay = jumpToDay;
+
+    // ── Eat ───────────────────────────────────────
+    function renderEat() {
+      const items = T.restaurants.filter(r => eatFilter === 'All' || r.city === eatFilter);
+      document.getElementById('eatList').innerHTML = items.map(r => `
+        <div class="eat-card">
+          <div class="ec-top">
+            <div class="name">${r.name}</div>
+            <div class="city-flag">${r.city}</div>
+          </div>
+          <div class="meta">${r.area.toUpperCase()} · ${r.mood.toUpperCase()}</div>
+          <div class="note">${r.note}</div>
+        </div>
+      `).join('');
+    }
+    document.getElementById('eatTabs').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-city]');
+      if (!b) return;
+      document.querySelectorAll('#eatTabs button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      eatFilter = b.dataset.city;
+      renderEat();
+    });
+
+    // ── Safety ────────────────────────────────────
+    function renderEmergency() {
+      document.getElementById('emergencyList').innerHTML = T.emergencies.map(([k, v]) =>
+        `<div class="e-row"><div>${k}</div><div class="num">${v}</div></div>`
+      ).join('');
+    }
+
+    // ── Screen switching ──────────────────────────
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(s =>
+        s.classList.toggle('active', s.dataset.screen === name));
+      document.querySelectorAll('.tabbar button').forEach(b =>
+        b.classList.toggle('active', b.dataset.tab === name));
+      const labels = { today: 'Today', trip: 'Whole trip', eat: 'Dining', safety: 'Safety' };
+      document.getElementById('topBrand').textContent = labels[name];
+      document.getElementById('topDayOf').style.display = (name === 'today') ? '' : 'none';
+      if (name === 'trip')   renderTrip();
+      if (name === 'eat')    renderEat();
+      if (name === 'safety') renderEmergency();
+    }
+    window.showScreen = showScreen;
+    document.querySelector('.tabbar').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-tab]');
+      if (!b) return;
+      showScreen(b.dataset.tab);
+    });
+
+    // ── Init ─────────────────────────────────────
+    renderPager();
+    // Initialize all "Now" callouts up front
+    T.days.forEach((_, i) => refreshNow(i, whenMode));
+    // Then jump to today (after a tick so pager has its width)
+    setTimeout(() => {
+      goPage(TODAY_IDX, { smooth: false });
+      document.getElementById('prev').disabled = (TODAY_IDX === 0);
+      // syncIdx in case scroll didn't fire
+      curIdx = TODAY_IDX;
+      document.querySelectorAll('#dots .dot').forEach((d, j) => d.classList.toggle('active', j === TODAY_IDX));
+      document.getElementById('topDayOf').textContent = `Day ${TODAY_IDX + 1} of 10`;
+    }, 30);
+  </script>
+</body>
+</html>

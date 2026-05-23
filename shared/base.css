@@ -1,0 +1,213 @@
+/* Shared base for the 3 phone prototypes.
+   Drives theme (light/sepia/dark), density, font scale, gentle-only.
+   Driven by data-* attributes on <html>, set by inline script and postMessage. */
+
+@import url("./tokens.css");
+
+/* ── Theme mapping ─────────────────────────────────────── */
+:root,
+:root[data-theme="light"] {
+  --bg:          var(--book);
+  --bg-alt:      var(--ivory);
+  --bg-elev:     var(--paper);
+  --bg-deep:     #E5E2D6;
+  --fg:          var(--slate);
+  --fg-muted:    var(--slate-600);
+  --fg-faint:    var(--slate-500);
+  --border:      var(--slate-300);
+  --hairline:    rgba(31,30,29,0.12);
+  --hairline-strong: rgba(31,30,29,0.22);
+  --status-fg:   #1F1E1D;
+  --photo-tint:  rgba(31,30,29,0.0);
+}
+
+:root[data-theme="sepia"] {
+  --bg:          #ECE3CC;
+  --bg-alt:      #F4ECD8;
+  --bg-elev:     #FBF5E3;
+  --bg-deep:     #DDD0B0;
+  --fg:          #2B241A;
+  --fg-muted:    #6B5E47;
+  --fg-faint:    #8E815F;
+  --border:      #C9BC9C;
+  --hairline:    rgba(43,36,26,0.16);
+  --hairline-strong: rgba(43,36,26,0.30);
+  --accent:      #B85F37;
+  --accent-hover:#9A4928;
+  --accent-bg:   #F1DCC8;
+  --status-fg:   #2B241A;
+  --photo-tint:  rgba(60,40,15,0.10);
+}
+
+:root[data-theme="dark"] {
+  --bg:          #16140F;
+  --bg-alt:      #1E1B14;
+  --bg-elev:     #25221A;
+  --bg-deep:     #0E0C09;
+  --fg:          #EFEAD9;
+  --fg-muted:    #B4AC95;
+  --fg-faint:    #8E8770;
+  --border:      #3B362A;
+  --hairline:    rgba(239,234,217,0.10);
+  --hairline-strong: rgba(239,234,217,0.22);
+  --accent:      #E4885E;
+  --accent-hover:#F1A07A;
+  --accent-bg:   #2B2118;
+  --status-fg:   #EFEAD9;
+  --photo-tint:  rgba(0,0,0,0.30);
+}
+
+/* ── Density (compact / standard / airy) ───────────────── */
+:root,
+:root[data-density="standard"] {
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 28px; --sp-7: 36px;
+  --row-min: 52px;
+  --section-gap: 20px;
+}
+:root[data-density="compact"] {
+  --sp-1: 3px; --sp-2: 6px; --sp-3: 9px; --sp-4: 12px;
+  --sp-5: 16px; --sp-6: 20px; --sp-7: 28px;
+  --row-min: 44px;
+  --section-gap: 14px;
+}
+:root[data-density="airy"] {
+  --sp-1: 5px; --sp-2: 10px; --sp-3: 16px; --sp-4: 22px;
+  --sp-5: 28px; --sp-6: 36px; --sp-7: 48px;
+  --row-min: 60px;
+  --section-gap: 28px;
+}
+
+/* ── Font scale ────────────────────────────────────────── */
+:root,
+:root[data-scale="default"] { font-size: 16px; }
+:root[data-scale="small"]   { font-size: 14px; }
+:root[data-scale="large"]   { font-size: 18px; }
+
+/* ── Gentle-only mode: hide full-plan blocks, show gentle ─ */
+:root:not([data-gentle="on"]) .gentle-only { display: none !important; }
+:root[data-gentle="on"] .full-only         { display: none !important; }
+
+/* ── Base ──────────────────────────────────────────────── */
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+* { box-sizing: border-box; }
+
+/* iOS status-bar safe area — leaves room under the device's status bar */
+.safe-top { padding-top: 60px; }
+.safe-bot { padding-bottom: 96px; }
+
+/* Headings */
+h1, h2, h3, h4 { margin: 0; font-weight: 500; color: var(--fg); }
+h1.serif, h2.serif, h3.serif, .serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+/* Eyebrow / micro labels */
+.eyebrow {
+  font-size: 0.69rem;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  font-weight: 500;
+}
+.eyebrow.accent { color: var(--accent); }
+
+/* Hairlines */
+.hr { height: 1px; background: var(--hairline); border: 0; margin: 0; }
+.hr-strong { height: 1px; background: var(--hairline-strong); border: 0; }
+
+/* Tags */
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 3px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.tag.solid {
+  background: var(--accent-bg);
+  border-color: transparent;
+  color: var(--accent);
+}
+.tag.ink {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: transparent;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-elev);
+  color: var(--fg);
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:hover { background: var(--bg-alt); }
+.btn.primary { background: var(--fg); color: var(--bg); border-color: transparent; }
+.btn.primary:hover { background: var(--slate-800); }
+.btn.ghost { background: transparent; }
+.btn.block { display: flex; width: 100%; }
+
+/* Cards */
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: var(--sp-4);
+}
+.card.flat { background: var(--bg-alt); }
+
+/* Bottom tab bars (used by V1 and V3) */
+.tabbar {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-top: 1px solid var(--hairline);
+  padding: 8px 8px calc(env(safe-area-inset-bottom, 0px) + 26px);
+  display: grid;
+  grid-template-columns: repeat(var(--tab-count, 4), 1fr);
+  z-index: 30;
+}
+.tabbar button {
+  background: transparent;
+  border: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 4px;
+  color: var(--fg-muted);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.tabbar button.active { color: var(--accent); }
+.tabbar .ticon {
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+}
+
+/* Scrollers */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
