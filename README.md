@@ -1,5 +1,7 @@
 # London & Paris — Trip Companion
 
+**Live:** https://london-paris-2026.vercel.app
+
 A calm, mobile-first progressive web app (PWA) for a 10-day trip to London and Paris (May 22–31, 2026).
 
 ## Background
